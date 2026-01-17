@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body class="login-body">
 
 <div class="login-wrapper">
-  <h1 class="login-title">🚀 Вход в панель</h1>
+  <h1 class="login-title">Вход в панель</h1>
   <?php if (!empty($error)): ?>
     <div class="login-error"><?= htmlspecialchars($error) ?></div>
   <?php endif; ?>
