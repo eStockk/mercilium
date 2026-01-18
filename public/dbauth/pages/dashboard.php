@@ -113,5 +113,37 @@ if (empty($_SESSION['admin_id']) || ($_SESSION['admin_role'] ?? '') !== 'admin')
   </div>
 </div>
 
+
+
+<!-- === POPUP: Edit post === -->
+<div id="popup-edit" class="popup" aria-hidden="true">
+  <div class="popup-content">
+    <button class="close-btn">x</button>
+    <h2>Edit post</h2>
+    <div class="field">
+      <label>Title</label>
+      <input id="edit-title" type="text" placeholder="Enter title">
+    </div>
+    <div class="field">
+      <label>Tags</label>
+      <div id="edit-tags-list" class="tags-list"></div>
+      <button class="btn-select-tag">Select tags</button>
+      <div class="tags-dropdown"></div>
+      <input type="text" class="input-create-tag" placeholder="New tag">
+      <button class="btn-create-tag">+</button>
+    </div>
+    <div id="edit-source-block" class="field" style="display: none;">
+      <label>Source</label>
+      <select id="edit-source-select">
+        <option value="">None</option>
+      </select>
+    </div>
+    <div id="edit-editor" class="editor"></div>
+    <div class="popup-actions">
+      <button id="update-post" class="btn violet">Update</button>
+      <button id="save-draft-edit" class="btn">Save draft</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
