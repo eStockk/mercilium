@@ -66,24 +66,42 @@ if (empty($_SESSION['admin_id']) || ($_SESSION['admin_role'] ?? '') !== 'admin')
 <!-- === POPUP: Создание гайда === -->
 <div id="popup-guide" class="popup" aria-hidden="true">
   <div class="popup-content">
-    <button class="close-btn">×</button>
+    <button class="close-btn" type="button" aria-label="Закрыть">×</button>
     <h2>Создать гайд</h2>
     <div class="field">
       <label>Заголовок</label>
       <input id="guide-title" type="text" placeholder="Введите заголовок">
     </div>
+    <div class="category-layout" id="guide-category-layout" data-category-scope="guide">
+      <div class="category-tabs" id="guide-category-tabs">
+        <button class="category-tab category-add" id="guide-category-add-tab" type="button">+</button>
+      </div>
+      <div class="category-main">
+        <div class="category-header">
+          <div class="category-current" id="guide-category-current">Категория 1</div>
+          <div class="category-create">
+            <input id="guide-category-input" type="text" placeholder="Новая категория">
+            <button id="guide-category-add" class="btn btn-mini" type="button">Добавить</button>
+          </div>
+        </div>
+        <div id="guide-editor" class="editor"></div>
+      </div>
+    </div>
     <div class="field">
       <label>Теги</label>
       <div id="guide-tags-list" class="tags-list"></div>
-      <button class="btn-select-tag">Выбрать теги</button>
+      <div class="tag-controls">
+        <button class="btn-select-tag" type="button">Выбрать теги</button>
+      </div>
       <div class="tags-dropdown"></div>
-      <input type="text" class="input-create-tag" placeholder="Новый тег">
-      <button class="btn-create-tag">+</button>
+      <div class="tag-create-row">
+        <input type="text" class="input-create-tag" placeholder="Новый тег">
+        <button class="btn-create-tag" type="button">+</button>
+      </div>
     </div>
-    <div id="guide-editor" class="editor"></div>
     <div class="popup-actions">
-      <button id="publish-guide" class="btn violet">Опубликовать</button>
-      <button id="save-draft-guide" class="btn">В черновики</button>
+      <button id="publish-guide" class="btn violet" type="button">Опубликовать</button>
+      <button id="save-draft-guide" class="btn" type="button">В черновики</button>
     </div>
   </div>
 </div>
@@ -91,59 +109,80 @@ if (empty($_SESSION['admin_id']) || ($_SESSION['admin_role'] ?? '') !== 'admin')
 <!-- === POPUP: Создание источника === -->
 <div id="popup-source" class="popup" aria-hidden="true">
   <div class="popup-content">
-    <button class="close-btn">×</button>
+    <button class="close-btn" type="button" aria-label="Закрыть">×</button>
     <h2>Создать источник</h2>
     <div class="field">
       <label>Заголовок</label>
       <input id="source-title" type="text" placeholder="Введите заголовок">
     </div>
+    <div id="source-editor" class="editor"></div>
     <div class="field">
       <label>Теги</label>
       <div id="source-tags-list" class="tags-list"></div>
-      <button class="btn-select-tag">Выбрать теги</button>
+      <div class="tag-controls">
+        <button class="btn-select-tag" type="button">Выбрать теги</button>
+      </div>
       <div class="tags-dropdown"></div>
-      <input type="text" class="input-create-tag" placeholder="Новый тег">
-      <button class="btn-create-tag">+</button>
+      <div class="tag-create-row">
+        <input type="text" class="input-create-tag" placeholder="Новый тег">
+        <button class="btn-create-tag" type="button">+</button>
+      </div>
     </div>
-    <div id="source-editor" class="editor"></div>
     <div class="popup-actions">
-      <button id="publish-source" class="btn violet">Опубликовать</button>
-      <button id="save-draft-source" class="btn">В черновики</button>
+      <button id="publish-source" class="btn violet" type="button">Опубликовать</button>
+      <button id="save-draft-source" class="btn" type="button">В черновики</button>
     </div>
   </div>
 </div>
 
-
-
-<!-- === POPUP: Edit post === -->
+<!-- === POPUP: Редактирование поста === -->
 <div id="popup-edit" class="popup" aria-hidden="true">
   <div class="popup-content">
-    <button class="close-btn">x</button>
-    <h2>Edit post</h2>
+    <button class="close-btn" type="button" aria-label="Закрыть">×</button>
+    <h2>Редактировать пост</h2>
     <div class="field">
-      <label>Title</label>
-      <input id="edit-title" type="text" placeholder="Enter title">
+      <label>Заголовок</label>
+      <input id="edit-title" type="text" placeholder="Введите заголовок">
     </div>
-    <div class="field">
-      <label>Tags</label>
-      <div id="edit-tags-list" class="tags-list"></div>
-      <button class="btn-select-tag">Select tags</button>
-      <div class="tags-dropdown"></div>
-      <input type="text" class="input-create-tag" placeholder="New tag">
-      <button class="btn-create-tag">+</button>
+    <div class="category-layout" id="edit-category-layout" data-category-scope="edit">
+      <div class="category-tabs" id="edit-category-tabs">
+        <button class="category-tab category-add" id="edit-category-add-tab" type="button">+</button>
+      </div>
+      <div class="category-main">
+        <div class="category-header">
+          <div class="category-current" id="edit-category-current">Категория 1</div>
+          <div class="category-create">
+            <input id="edit-category-input" type="text" placeholder="Новая категория">
+            <button id="edit-category-add" class="btn btn-mini" type="button">Добавить</button>
+          </div>
+        </div>
+        <div id="edit-editor" class="editor"></div>
+      </div>
     </div>
-    <div id="edit-source-block" class="field" style="display: none;">
-      <label>Source</label>
+    <div class="field" id="edit-source-block" style="display: none;">
+      <label>Источник</label>
       <select id="edit-source-select">
-        <option value="">None</option>
+        <option value="">Без источника</option>
       </select>
     </div>
-    <div id="edit-editor" class="editor"></div>
+    <div class="field">
+      <label>Теги</label>
+      <div id="edit-tags-list" class="tags-list"></div>
+      <div class="tag-controls">
+        <button class="btn-select-tag" type="button">Выбрать теги</button>
+      </div>
+      <div class="tags-dropdown"></div>
+      <div class="tag-create-row">
+        <input type="text" class="input-create-tag" placeholder="Новый тег">
+        <button class="btn-create-tag" type="button">+</button>
+      </div>
+    </div>
     <div class="popup-actions">
-      <button id="update-post" class="btn violet">Update</button>
-      <button id="save-draft-edit" class="btn">Save draft</button>
+      <button id="update-post" class="btn violet" type="button">Обновить</button>
+      <button id="save-draft-edit" class="btn" type="button">В черновики</button>
     </div>
   </div>
 </div>
+
 </body>
 </html>

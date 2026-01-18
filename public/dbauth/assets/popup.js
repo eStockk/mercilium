@@ -112,8 +112,133 @@ function ensureEditors() {
   }
 }
 
+const categoryState = {
+  guide: { categories: [], activeId: null, counter: 0 },
+  edit: { categories: [], activeId: null, counter: 0 }
+};
+
+function getCategoryElements(prefix) {
+  return {
+    layout: document.getElementById(`${prefix}-category-layout`),
+    tabs: document.getElementById(`${prefix}-category-tabs`),
+    addTab: document.getElementById(`${prefix}-category-add-tab`),
+    current: document.getElementById(`${prefix}-category-current`),
+    input: document.getElementById(`${prefix}-category-input`),
+    addBtn: document.getElementById(`${prefix}-category-add`)
+  };
+}
+
+function getEditor(prefix) {
+  return prefix === "guide" ? quillGuide : quillEdit;
+}
+
+function getEditorContent(prefix) {
+  const editor = getEditor(prefix);
+  return editor ? editor.root.innerHTML : "";
+}
+
+function setEditorContent(prefix, html) {
+  const editor = getEditor(prefix);
+  if (editor) editor.root.innerHTML = html || "";
+}
+
+function syncCategoryContent(prefix) {
+  const state = categoryState[prefix];
+  if (!state.activeId) return;
+  const active = state.categories.find(c => c.id === state.activeId);
+  if (active) active.content = getEditorContent(prefix);
+}
+
+function renderCategoryTabs(prefix) {
+  const state = categoryState[prefix];
+  const els = getCategoryElements(prefix);
+  if (!els.tabs) return;
+  const addTab = els.addTab;
+  els.tabs.innerHTML = "";
+  state.categories.forEach((cat, index) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "category-tab" + (cat.id === state.activeId ? " active" : "");
+    btn.dataset.id = cat.id;
+    btn.textContent = String(index + 1);
+    els.tabs.appendChild(btn);
+  });
+  if (addTab) els.tabs.appendChild(addTab);
+}
+
+function setActiveCategory(prefix, id) {
+  const state = categoryState[prefix];
+  syncCategoryContent(prefix);
+  state.activeId = id;
+  const active = state.categories.find(c => c.id === id);
+  renderCategoryTabs(prefix);
+  const els = getCategoryElements(prefix);
+  if (els.current && active) els.current.textContent = active.name;
+  setEditorContent(prefix, active ? active.content : "");
+}
+
+function addCategory(prefix, name, content = "") {
+  const state = categoryState[prefix];
+  state.counter += 1;
+  const id = `${prefix}-cat-${state.counter}`;
+  const catName = name || `Категория ${state.counter}`;
+  state.categories.push({ id, name: catName, content });
+  setActiveCategory(prefix, id);
+}
+
+function initCategories(prefix, initialCategories) {
+  const state = categoryState[prefix];
+  state.categories = [];
+  state.activeId = null;
+  state.counter = 0;
+  if (Array.isArray(initialCategories) && initialCategories.length) {
+    initialCategories.forEach(cat => {
+      state.counter += 1;
+      const id = `${prefix}-cat-${state.counter}`;
+      const name = cat.name || `Категория ${state.counter}`;
+      state.categories.push({ id, name, content: cat.content || "" });
+    });
+    setActiveCategory(prefix, state.categories[0].id);
+  } else {
+    addCategory(prefix, "Категория 1", "");
+  }
+}
+
+function getCategoriesPayload(prefix) {
+  const state = categoryState[prefix];
+  if (!state.categories.length) return null;
+  syncCategoryContent(prefix);
+  return state.categories.map(cat => ({
+    name: cat.name,
+    content: cat.content || ""
+  }));
+}
+
+function bindCategoryControls(prefix) {
+  const els = getCategoryElements(prefix);
+  if (!els.tabs) return;
+
+  els.tabs.addEventListener("click", e => {
+    const btn = e.target.closest(".category-tab");
+    if (!btn) return;
+    if (btn.classList.contains("category-add")) {
+      const name = els.input?.value.trim() || "";
+      addCategory(prefix, name);
+      if (els.input) els.input.value = "";
+      return;
+    }
+    if (btn.dataset.id) setActiveCategory(prefix, btn.dataset.id);
+  });
+
+  els.addBtn?.addEventListener("click", () => {
+    const name = els.input?.value.trim() || "";
+    addCategory(prefix, name);
+    if (els.input) els.input.value = "";
+  });
+}
+
 // ajax save
-async function savePost({ action, id, type, title, content, tags, mode, source_id }) {
+async function savePost({ action, id, type, title, content, tags, mode, source_id, categories }) {
   const fd = new FormData();
   fd.append("action", action);
   if (id) fd.append("id", id);
@@ -124,6 +249,7 @@ async function savePost({ action, id, type, title, content, tags, mode, source_i
   fd.append("tags", JSON.stringify(tags));
   if (type === "guide") {
     fd.append("source_id", source_id || "");
+    if (categories) fd.append("categories", JSON.stringify(categories));
   }
 
   try {
@@ -182,9 +308,13 @@ function addTagToList(name, listSelector) {
 
 // --- Main ---
 document.addEventListener("DOMContentLoaded", () => {
+  bindCategoryControls("guide");
+  bindCategoryControls("edit");
+
   // openers
   $("#btnAddGuide")?.addEventListener("click", () => {
     ensureEditors();
+    if (!categoryState.guide.categories.length) initCategories("guide");
     openPopup($("#popup-guide"));
   });
   $("#btnAddSource")?.addEventListener("click", () => {
@@ -244,11 +374,12 @@ document.addEventListener("DOMContentLoaded", () => {
   // --- SAVE buttons ---
   $("#publish-guide")?.addEventListener("click", () => {
     const title = $("#guide-title").value.trim();
-    const content = quillGuide ? quillGuide.root.innerHTML : "";
+    const content = getEditorContent("guide");
     const tags = Array.from($("#guide-tags-list").querySelectorAll(".tag")).map(
       t => t.dataset.tag
     );
     const source_id = $("#guide-source-select")?.value || "";
+    const categories = getCategoriesPayload("guide");
     if (!title) return alert("Введите заголовок");
     savePost({
       action: "create",
@@ -257,17 +388,19 @@ document.addEventListener("DOMContentLoaded", () => {
       content,
       tags,
       mode: "published",
-      source_id
+      source_id,
+      categories
     });
   });
 
   $("#save-draft-guide")?.addEventListener("click", () => {
     const title = $("#guide-title").value.trim();
-    const content = quillGuide ? quillGuide.root.innerHTML : "";
+    const content = getEditorContent("guide");
     const tags = Array.from($("#guide-tags-list").querySelectorAll(".tag")).map(
       t => t.dataset.tag
     );
     const source_id = $("#guide-source-select")?.value || "";
+    const categories = getCategoriesPayload("guide");
     if (!title) return alert("Введите заголовок");
     savePost({
       action: "create",
@@ -276,7 +409,8 @@ document.addEventListener("DOMContentLoaded", () => {
       content,
       tags,
       mode: "draft",
-      source_id
+      source_id,
+      categories
     });
   });
 
@@ -326,17 +460,29 @@ document.addEventListener("DOMContentLoaded", () => {
       ensureEditors();
 
       $("#edit-title").value = data.post.title;
-      quillEdit.root.innerHTML = data.post.content;
 
       const tagsList = $("#edit-tags-list");
       tagsList.innerHTML = "";
       (data.post.tags || []).forEach(t => addTagToList(t, "#edit-tags-list"));
 
+      const editLayout = $("#edit-category-layout");
       if (data.post.type === "guide") {
+        editLayout?.classList.remove("simple");
         $("#edit-source-block").style.display = "block";
         $("#edit-source-select").value = data.post.source_id || "";
+        const categories =
+          typeof data.post.categories === "string"
+            ? JSON.parse(data.post.categories || "[]")
+            : data.post.categories;
+        if (Array.isArray(categories) && categories.length) {
+          initCategories("edit", categories);
+        } else {
+          initCategories("edit", [{ name: "Категория 1", content: data.post.content }]);
+        }
       } else {
+        editLayout?.classList.add("simple");
         $("#edit-source-block").style.display = "none";
+        setEditorContent("edit", data.post.content);
       }
 
       $("#update-post").dataset.id = id;
@@ -353,12 +499,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const id = $("#update-post").dataset.id;
     const type = $("#update-post").dataset.type;
     const title = $("#edit-title").value.trim();
-    const content = quillEdit ? quillEdit.root.innerHTML : "";
+    const content = getEditorContent("edit");
     const tags = Array.from($("#edit-tags-list").querySelectorAll(".tag")).map(
       t => t.dataset.tag
     );
     const source_id =
       type === "guide" ? $("#edit-source-select")?.value || "" : "";
+    const categories = type === "guide" ? getCategoriesPayload("edit") : null;
     if (!title) return alert("Введите заголовок");
     savePost({
       action: "update",
@@ -368,7 +515,8 @@ document.addEventListener("DOMContentLoaded", () => {
       content,
       tags,
       mode: "published",
-      source_id
+      source_id,
+      categories
     });
   });
 
@@ -376,12 +524,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const id = $("#update-post").dataset.id;
     const type = $("#update-post").dataset.type;
     const title = $("#edit-title").value.trim();
-    const content = quillEdit ? quillEdit.root.innerHTML : "";
+    const content = getEditorContent("edit");
     const tags = Array.from($("#edit-tags-list").querySelectorAll(".tag")).map(
       t => t.dataset.tag
     );
     const source_id =
       type === "guide" ? $("#edit-source-select")?.value || "" : "";
+    const categories = type === "guide" ? getCategoriesPayload("edit") : null;
     if (!title) return alert("Введите заголовок");
     savePost({
       action: "update",
@@ -391,7 +540,8 @@ document.addEventListener("DOMContentLoaded", () => {
       content,
       tags,
       mode: "draft",
-      source_id
+      source_id,
+      categories
     });
   });
 });

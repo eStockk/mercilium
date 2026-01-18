@@ -31,7 +31,7 @@ try {
         $whereSql = $where ? "WHERE " . implode(" AND ", $where) : "";
 
         $sql = "
-            SELECT p.id, p.title, p.content, p.type, p.status, p.created_at, p.source_id,
+            SELECT p.id, p.title, p.content, p.type, p.status, p.created_at, p.source_id, p.categories,
                    GROUP_CONCAT(t.name) as tags
             FROM posts p
             LEFT JOIN post_tags pt ON p.id = pt.post_id
@@ -49,7 +49,7 @@ try {
     // --- GET ---
     if ($method === 'GET' && $action === 'get') {
         $id = (int)($_GET['id'] ?? 0);
-        if (!$id) json_out(['ok' => false, 'error' => 'No id']);
+        if (!$id) json_out(['ok' => false, 'error' => 'Empty title or content']);
 
         $stmt = $pdo->prepare("SELECT * FROM posts WHERE id = ?");
         $stmt->execute([$id]);
@@ -86,18 +86,27 @@ try {
         $status = $_POST['mode'] ?? 'published';
         $tags = json_decode($_POST['tags'] ?? '[]', true);
         $source_id = ($type === 'guide' && !empty($_POST['source_id'])) ? (int)$_POST['source_id'] : null;
-
-        if ($title === '' || $content === '') {
-            json_out(['ok' => false, 'error' => 'Пустой заголовок или текст']);
+        $categories = null;
+        if ($type === 'guide' && isset($_POST['categories'])) {
+            $raw = $_POST['categories'];
+            $decoded = json_decode($raw, true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $categories = json_encode($decoded, JSON_UNESCAPED_UNICODE);
+            }
         }
 
+        if ($title === '' || $content === '') {
+            json_out(['ok' => false, 'error' => 'Empty title or content']);
+        }
+
+
         if ($act === 'create') {
-            $stmt = $pdo->prepare("INSERT INTO posts (title, content, type, status, source_id, created_at) VALUES (?,?,?,?,?,NOW())");
-            $stmt->execute([$title, $content, $type, $status, $source_id]);
+            $stmt = $pdo->prepare("INSERT INTO posts (title, content, type, status, source_id, categories, created_at) VALUES (?,?,?,?,?,?,NOW())");
+            $stmt->execute([$title, $content, $type, $status, $source_id, $categories]);
             $id = $pdo->lastInsertId();
         } elseif ($act === 'update' && $id) {
-            $stmt = $pdo->prepare("UPDATE posts SET title=?, content=?, type=?, status=?, source_id=? WHERE id=?");
-            $stmt->execute([$title, $content, $type, $status, $source_id, $id]);
+            $stmt = $pdo->prepare("UPDATE posts SET title=?, content=?, type=?, status=?, source_id=?, categories=? WHERE id=?");
+            $stmt->execute([$title, $content, $type, $status, $source_id, $categories, $id]);
         } else {
             json_out(['ok' => false, 'error' => 'Unknown action']);
         }
