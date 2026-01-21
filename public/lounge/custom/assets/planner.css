@@ -1964,7 +1964,8 @@ input[type=number] {
 
 .vlan-custom-name{ margin-top: 8px; }
 
-.vlan-custom-name input{
+.vlan-custom-name input,
+.vlan-edit-pane #vlanCustomNameInput{
   width: 100%;
   height: 44px;
   padding: 0 14px;
@@ -1983,8 +1984,9 @@ input[type=number] {
   box-shadow: 0 0 0 3px rgba(167,139,250,.25);
 }
 
-.vlan-edit-pane .vlan-custom-name{ margin-top: 10px; }
-.vlan-edit-pane .vlan-row{ margin-top: 10px; }
+.vlan-edit-pane .vlan-name-row{ margin-bottom: 10px; }
+.vlan-edit-pane .vlan-custom-name{ margin-top: 0; margin-bottom: 10px; }
+.vlan-edit-pane .vlan-row{ margin-top: 0; }
 
 .vlan-cube {
   width: 28px;
