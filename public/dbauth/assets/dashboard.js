@@ -36,14 +36,14 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const res = await fetch("/dbauth/pages/api/get_posts.php");
       const data = await res.json();
-      if (!data.ok) throw new Error(data.error || "?????? API");
+      if (!data.ok) throw new Error(data.error || "Ошибка API");
 
       guidesData = Array.isArray(data.guides) ? data.guides : [];
       sourcesData = Array.isArray(data.sources) ? data.sources : [];
       renderLists();
     } catch (err) {
-      console.error("?????? ???????? ??????:", err);
-      guidesList.innerHTML = `<p class="error">? ${err.message}</p>`;
+      console.error("Ошибка загрузки постов:", err);
+      guidesList.innerHTML = `<p class="error">⚠ ${err.message}</p>`;
       sourcesList.innerHTML = "";
     }
   }
@@ -55,12 +55,12 @@ document.addEventListener("DOMContentLoaded", () => {
       .join(" " );
     return `
       <div class="post-card">
-        <h4>${p.title || "??? ????????"}</h4>
+        <h4>${p.title || "Без названия"}</h4>
         <div class="tags">${tags}</div>
         <p class="date">${new Date(p.created_at).toLocaleString("ru-RU")}</p>
         <div class="actions">
-          <button class="edit-post" data-id="${p.id}">?????????????</button>
-          <button class="delete-post" data-id="${p.id}">???????</button>
+          <button class="btn btn-mini edit-post" data-id="${p.id}">Редактировать</button>
+          <button class="btn btn-mini btn-danger delete-post" data-id="${p.id}">Удалить</button>
         </div>
       </div>`;
   }
@@ -68,12 +68,12 @@ document.addEventListener("DOMContentLoaded", () => {
   function bindEditButtons() {
     document.querySelectorAll(".delete-post").forEach(btn => {
       btn.onclick = async () => {
-        if (!confirm("??????? ?????")) return;
+        if (!confirm("Удалить пост?")) return;
         const id = btn.dataset.id;
         const res = await fetch(`/dbauth/pages/api/posts.php?action=delete&id=${id}`);
         const data = await res.json();
         if (data.ok) refreshPosts();
-        else alert("?????? ????????");
+        else alert("Не удалось удалить");
       };
     });
   }

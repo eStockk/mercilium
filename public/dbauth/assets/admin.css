@@ -52,6 +52,19 @@ body {
   font-weight: 600;
   margin-left: 10px;
 }
+.btn.btn-mini{
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+}
+.btn.btn-danger{
+  border-color: rgba(255,90,120,0.7);
+  background: rgba(255,90,120,0.12);
+}
+.btn.btn-danger:hover{
+  background: rgba(255,90,120,0.24);
+  box-shadow: 0 0 12px rgba(255,90,120,0.5);
+}
 .btn:hover {
   background: rgba(128,0,255,0.3);
   box-shadow: 0 0 15px rgba(128,0,255,0.6);
@@ -153,6 +166,7 @@ body {
   gap: 10px;
   margin-top: 10px;
 }
+.actions .btn{ margin-left: 0; }
 
 @media (max-width: 1100px) {
   .posts-section {
