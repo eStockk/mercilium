@@ -103,7 +103,12 @@ if (empty($_SESSION['admin_id']) || ($_SESSION['admin_role'] ?? '') !== 'admin')
     </div>
     <div class="field" id="guide-source-block">
       <label>Источник</label>
-      <select id="guide-source-select" class="source-select">
+      <div class="source-picker">
+        <button class="btn btn-select-source" type="button" data-scope="guide">Выбрать</button>
+        <div class="source-current" id="guide-source-current">Без источника</div>
+      </div>
+      <div class="source-dropdown tags-dropdown" id="guide-source-dropdown"></div>
+      <select id="guide-source-select" class="source-select" aria-hidden="true">
         <option value="">Без источника</option>
       </select>
     </div>
@@ -186,7 +191,12 @@ if (empty($_SESSION['admin_id']) || ($_SESSION['admin_role'] ?? '') !== 'admin')
     </div>
     <div class="field" id="edit-source-block" style="display: none;">
       <label>Источник</label>
-      <select id="edit-source-select" class="source-select">
+      <div class="source-picker">
+        <button class="btn btn-select-source" type="button" data-scope="edit">Выбрать</button>
+        <div class="source-current" id="edit-source-current">Без источника</div>
+      </div>
+      <div class="source-dropdown tags-dropdown" id="edit-source-dropdown"></div>
+      <select id="edit-source-select" class="source-select" aria-hidden="true">
         <option value="">Без источника</option>
       </select>
     </div>
