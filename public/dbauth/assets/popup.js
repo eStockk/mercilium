@@ -409,6 +409,33 @@ function addTagToList(name, listSelector) {
   listEl.appendChild(span);
 }
 
+async function loadSourcesSelect(selectEl, selectedId = "") {
+  if (!selectEl) return;
+  try {
+    const res = await fetch("/dbauth/pages/api/posts.php?action=list&type=source&status=published");
+    const data = await res.json();
+    if (!data.ok) return;
+    const list = Array.isArray(data.posts) ? data.posts : [];
+    const current = selectedId ? String(selectedId) : "";
+    selectEl.innerHTML = `<option value="">Без источника</option>`;
+    list.forEach(p => {
+      const opt = document.createElement("option");
+      opt.value = p.id;
+      opt.textContent = p.title || `Источник #${p.id}`;
+      selectEl.appendChild(opt);
+    });
+    if (current && !list.some(p => String(p.id) === current)) {
+      const opt = document.createElement("option");
+      opt.value = current;
+      opt.textContent = `Источник #${current}`;
+      selectEl.appendChild(opt);
+    }
+    selectEl.value = current;
+  } catch (e) {
+    console.error(e);
+  }
+}
+
 // --- Main ---
 document.addEventListener("DOMContentLoaded", () => {
   bindCategoryControls("guide");
@@ -418,6 +445,7 @@ document.addEventListener("DOMContentLoaded", () => {
   $("#btnAddGuide")?.addEventListener("click", () => {
     ensureEditors();
     if (!categoryState.guide.categories.length) initCategories("guide", [], { allowEmpty: true });
+    loadSourcesSelect($("#guide-source-select"));
     openPopup($("#popup-guide"));
   });
   $("#btnAddSource")?.addEventListener("click", () => {
@@ -574,7 +602,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (data.post.type === "guide") {
         editLayout?.classList.remove("simple");
         $("#edit-source-block").style.display = "block";
-        $("#edit-source-select").value = data.post.source_id || "";
+        await loadSourcesSelect($("#edit-source-select"), data.post.source_id || "");
         const categories =
           typeof data.post.categories === "string"
             ? JSON.parse(data.post.categories || "[]")

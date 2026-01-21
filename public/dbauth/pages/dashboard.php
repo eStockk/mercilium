@@ -101,6 +101,12 @@ if (empty($_SESSION['admin_id']) || ($_SESSION['admin_role'] ?? '') !== 'admin')
         <div id="guide-editor" class="editor"></div>
       </div>
     </div>
+    <div class="field" id="guide-source-block">
+      <label>Источник</label>
+      <select id="guide-source-select" class="source-select">
+        <option value="">Без источника</option>
+      </select>
+    </div>
     <div class="field">
       <label>Теги</label>
       <div id="guide-tags-list" class="tags-list"></div>
@@ -180,7 +186,7 @@ if (empty($_SESSION['admin_id']) || ($_SESSION['admin_role'] ?? '') !== 'admin')
     </div>
     <div class="field" id="edit-source-block" style="display: none;">
       <label>Источник</label>
-      <select id="edit-source-select">
+      <select id="edit-source-select" class="source-select">
         <option value="">Без источника</option>
       </select>
     </div>
