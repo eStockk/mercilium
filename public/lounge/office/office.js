@@ -617,48 +617,6 @@ function handleVmConfigInput(raw) {
 
 
 // редактирование VLAN из офиса
-const modalVlan = document.getElementById('modalVlan');
-document.getElementById('btnEditVlan').onclick = ()=>{
-  const rows = document.getElementById('vlanRowsOffice');
-  rows.innerHTML = '';
-  (office.vlans||[]).forEach(v=> addVlanRowOffice(v.vid, v.role, v.cap));
-  if(rows.children.length===0) addVlanRowOffice();
-  modalVlan.classList.add('active');
-};
-document.querySelectorAll('#modalVlan [data-close]').forEach(b=> b.onclick=()=> modalVlan.classList.remove('active'));
-document.getElementById('btnAddVlanOffice').onclick = ()=> addVlanRowOffice();
-
-document.getElementById('btnSaveVlanOffice').onclick = ()=>{
-  const rows = document.querySelectorAll('#vlanRowsOffice .vlan-row');
-  const vlans = [];
-  rows.forEach(r=>{
-    const vid  = +(r.querySelector('.vid').value||0);
-    const role = r.querySelector('.role').value||'Клиенты';
-    const cap  = +(r.querySelector('.cap').value||0);
-    if(vid>0 && cap>0) vlans.push({vid,role,cap});
-  });
-  office.vlans = vlans;
-  rebuildIpam(office);
-  persistOffice();        // твоя функция сохранения в localStorage/обновления
-  modalVlan.classList.remove('active');
-  // обнови UI статуса
-  document.getElementById('infoVlanCnt').textContent = office.vlans.length;
-};
-
-function addVlanRowOffice(vid='',role='Клиенты',cap=''){
-  const rows = document.getElementById('vlanRowsOffice');
-  const row = document.createElement('div');
-  row.className = 'vlan-row';
-  row.innerHTML = `
-    <input class="vid"  type="number" min="1" max="4094" placeholder="VID" value="${vid}">
-    <select class="role">${VLAN_ROLES.map(r=>`<option ${r===role?'selected':''}>${r}</option>`).join('')}</select>
-    <input class="cap" type="number" min="1" max="2000" placeholder="Вместимость" value="${cap}">
-    <button class="del">×</button>
-  `;
-  row.querySelector('.del').onclick = ()=> row.remove();
-  rows.appendChild(row);
-}
-
 // planner.js
 const VM_ICON_BY_TYPE = {
   router:   '../custom/img/router.png',

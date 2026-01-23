@@ -601,6 +601,67 @@ function previewIpFromVlan(vid){
   return allocIP(officeClone, vid);
 }
 
+
+function getStaticRange(office){
+  if (!office?.cidr || typeof cidrInfo !== "function") return null;
+  const info = cidrInfo(office.cidr);
+  if (!info || !Number.isFinite(info.first) || !Number.isFinite(info.last)) return null;
+  return { first: info.first, last: info.last };
+}
+
+function ensureStaticIpPool(office){
+  const range = getStaticRange(office);
+  if (!range || typeof ipToInt !== "function") return null;
+
+  office.ipamStatic ||= {};
+  if (office.ipamStatic.cidr !== office.cidr) {
+    office.ipamStatic = { cidr: office.cidr, next: range.first, taken: [] };
+  }
+
+  const taken = new Set();
+  (office.vms || []).forEach(vm => {
+    (vm.ifaces || []).forEach(nic => {
+      if (nic?.mode === "static" && nic.ip) {
+        const ipInt = ipToInt(nic.ip);
+        if (Number.isFinite(ipInt) && ipInt >= range.first && ipInt <= range.last) {
+          taken.add(ipInt);
+        }
+      }
+    });
+  });
+
+  const takenArr = Array.from(taken).sort((a,b)=>a-b);
+  office.ipamStatic.taken = takenArr;
+  for (let ip = range.first; ip <= range.last; ip++){
+    if (!taken.has(ip)) { office.ipamStatic.next = ip; break; }
+  }
+  return { range, taken: takenArr };
+}
+
+function allocStaticIP(office){
+  const data = ensureStaticIpPool(office);
+  if (!data || typeof intToIp !== "function") return null;
+  const { range } = data;
+  const taken = new Set(office.ipamStatic?.taken || []);
+  let chosen = null;
+  for (let ip = range.first; ip <= range.last; ip++){
+    if (!taken.has(ip)){ chosen = ip; break; }
+  }
+  if (chosen == null) return null;
+  taken.add(chosen);
+  office.ipamStatic.taken = Array.from(taken).sort((a,b)=>a-b);
+  office.ipamStatic.next = chosen + 1;
+  return { ipStr: intToIp(chosen), ipInt: chosen };
+}
+
+function previewIpFromOfficeCidr(){
+  const { office } = getOfficeCtx();
+  if (!office) return null;
+  const clone = JSON.parse(JSON.stringify(office));
+  const alloc = allocStaticIP(clone);
+  return alloc?.ipStr || null;
+}
+
 // --- КОММИТ: подтверждаем IP только при переходе на STEP4 ---
 function commitIpsForIfaces(ifaces) {
   // общий контекст office.js
@@ -790,6 +851,7 @@ if (wrap) wrap.setAttribute("data-distro", vmDistro);
 
   function createIfaceFormCard(idx){
     const vlans = getVlansSafe();
+    const hasVlans = vlans.length > 0;
 
     const card = document.createElement("div");
     card.className = "iface-card iface-card--form";
@@ -812,7 +874,7 @@ if (wrap) wrap.setAttribute("data-distro", vmDistro);
   <option value="" selected disabled>Выбери тип</option>
   <option value="static">Статический</option>
   <option value="dhcp">Динамический (DHCP)</option>
-  <option value="vlan">VLAN</option>
+  ${hasVlans ? '<option value=\"vlan\">VLAN</option>' : ''}
   <option value="ispemach">Подключение к ISP/Emach</option>
 </select>
 
@@ -882,7 +944,7 @@ else {
 
     selType.addEventListener("change", () => {
       model.type = selType.value;
-      if (model.type === "static" || model.type === "vlan"){
+      if (model.type === "vlan"){
   vlanField.style.display = "";
 } else {
   vlanField.style.display = "none";
@@ -1116,6 +1178,7 @@ function openOvsStep(typeKey) {
   function renderBridges() {
     bridgesWrap.innerHTML = "";
     const vlans = getVlansSafe();
+    const hasVlans = vlans.length > 0;
 
     ovsConfig.bridges.forEach((br, brIndex) => {
       const card = document.createElement("div");
@@ -1415,7 +1478,6 @@ function validateStep4(data){
     errors.push("Укажите hostname (название машины).");
   }
 
-  // domain опциональный — проверяем только если введён
   if (data.domain.trim() && !/^[a-zA-Z0-9.-]+$/.test(data.domain.trim())) {
     errors.push("Domain некорректен (разрешены: a-z, 0-9, точки, дефисы).");
   }
@@ -1423,30 +1485,31 @@ function validateStep4(data){
   if (!Array.isArray(data.ifaces) || data.ifaces.length === 0) {
     errors.push("Добавьте хотя бы один интерфейс.");
   } else {
-    // пустые имена
     if (data.ifaces.some(i => !i.name || !String(i.name).trim())) {
       errors.push("У некоторых интерфейсов нет имени.");
     }
 
-    // пустые типы
     if (data.ifaces.some(i => !i.type)) {
       errors.push("У некоторых интерфейсов не выбран тип подключения.");
     }
 
-    // static/vlan требуют VLAN
-    if (data.ifaces.some(i => (i.type === "static" || i.type === "vlan") && !i.vlanVid)) {
-      errors.push("Некоторые интерфейсы (static/VLAN) требуют выбора VLAN.");
+    // vlan требует выбора VLAN
+    if (data.ifaces.some(i => i.type === "vlan" && !i.vlanVid)) {
+      errors.push("Некоторые интерфейсы (VLAN) требуют выбора VLAN.");
     }
 
-    // дубли имён интерфейсов
+    const ctx = getOfficeCtx();
+    if (data.ifaces.some(i => i.type === "static") && !ctx.office?.cidr) {
+      errors.push("Для статического режима нужно задать CIDR офиса.");
+    }
+
     const names = data.ifaces.map(i => String(i.name || "").trim()).filter(Boolean);
     const dupNames = names.filter((n, idx) => names.indexOf(n) !== idx);
     if (dupNames.length) {
       const uniqDup = [...new Set(dupNames)];
-      errors.push("Имена интерфейсов должны быть уникальны: " + uniqDup.join(", "));
+      errors.push("Некоторые интерфейсы имеют одинаковые имена: " + uniqDup.join(", "));
     }
 
-    // IP-ошибки (если allocIP в step3 вернул предупреждение)
     if (data.ifaces.some(i => String(i.address || "").includes("закончились адреса"))) {
       errors.push("В одном из VLAN закончились адреса. Увеличьте вместимость VLAN.");
     }
@@ -1455,7 +1518,6 @@ function validateStep4(data){
   return errors;
 }
 
-/** Человеческие названия типов */
 function typeLabel(typeKey){
   return (TYPES.find(t => t.key === typeKey)?.label) || typeKey || "—";
 }

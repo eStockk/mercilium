@@ -1925,6 +1925,15 @@ ensureElement('modalVlanEditor', `
               Иконка
             </button>
           </div>
+          <div class="vlan-row">
+            <input
+              id="vlanCapInput"
+              type="number"
+              min="4"
+              max="65536"
+              placeholder="Вместимость (адресов)"
+            >
+          </div>
 
           <!-- ПРИОРИТЕТ -->
           <button
@@ -4207,6 +4216,9 @@ function normalizeVlan(v){
   // vid
   if (v.vid != null) v.vid = Number(v.vid) || null;
 
+  // capacity (addresses including net/broadcast)
+  if (v.cap != null) v.cap = Number(v.cap) || null;
+
   return v;
 }
 
@@ -4253,13 +4265,14 @@ function openVlanEditor(office){
   const btnNameRemove = document.getElementById('btnVlanNameRemove');
 
   const vidInp  = document.getElementById('vlanVidInput');
+  const capInp  = document.getElementById('vlanCapInput');
   const btnIcon = document.getElementById('btnVlanIcon');
 
   const btnPriority = document.getElementById('btnVlanPriority');
   const btnSave = document.getElementById('btnSaveVlanEditor');
 
   if (!modal || !grid || !empty || !pane || !selName || !btnNameAdd ||
-      !customBox || !customInp || !btnNameRemove || !vidInp || !btnIcon ||
+      !customBox || !customInp || !btnNameRemove || !vidInp || !capInp || !btnIcon ||
       !btnPriority || !btnSave) {
     showResult(false, 'Редактор VLAN: DOM повреждён.');
     return;
@@ -4623,6 +4636,17 @@ delBtn.onclick = (e) => {
     saveState(state);
 
     updatePriorityButton();
+    updateSaveButton();
+  };
+
+  capInp.oninput = () => {
+    const v = getSelected();
+    if (!v) return;
+
+    const n = Number(capInp.value);
+    v.cap = Number.isFinite(n) ? n : null;
+    saveState(state);
+
     updateSaveButton();
   };
 
