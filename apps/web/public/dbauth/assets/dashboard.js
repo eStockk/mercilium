@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+const initDashboard = () => {
   const loader = document.getElementById("loader");
   const guidesList = document.getElementById("guidesList");
   const sourcesList = document.getElementById("sourcesList");
@@ -14,10 +14,21 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 1800);
   }
 
+  function normalizeTags(value) {
+    if (Array.isArray(value)) return value;
+    if (typeof value === "string") {
+      return value
+        .split(",")
+        .map(t => t.trim())
+        .filter(Boolean);
+    }
+    return [];
+  }
+
   function matchesQuery(p, query) {
     if (!query) return true;
     const title = (p.title || "").toLowerCase();
-    const tags = (p.tags || "").toLowerCase();
+    const tags = normalizeTags(p.tags).join(" ").toLowerCase();
     return title.includes(query) || tags.includes(query);
   }
 
@@ -49,10 +60,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function renderCard(p) {
-    const tags = (p.tags || "")
-      .split(",")
-      .map(t => `<span class="tag">#${t.trim()}</span>`)
-      .join(" " );
+    const tags = normalizeTags(p.tags)
+      .map(t => `<span class="tag">#${t}</span>`)
+      .join(" ");
     return `
       <div class="post-card">
         <h4>${p.title || "Без названия"}</h4>
@@ -90,4 +100,10 @@ document.addEventListener("DOMContentLoaded", () => {
   globalSearch?.addEventListener("input", () => renderLists());
 
   refreshPosts();
-});
+};
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initDashboard);
+} else {
+  initDashboard();
+}
