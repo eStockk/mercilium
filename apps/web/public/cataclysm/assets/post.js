@@ -1,12 +1,11 @@
-async function loadPost() {
+﻿async function loadPost() {
   try {
-    const res = await fetch(`../../backside/api/get_post.php?id=${POST_ID}`, { cache: 'no-store' });
-    const text = await res.text();
-    const data = JSON.parse(text);
-    if (!data.ok) throw new Error(data.error || "Ошибка API");
+    const res = await fetch(`/api/public/posts/${POST_ID}`, { cache: 'no-store' });
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error || "РћС€РёР±РєР° API");
 
-    const p = data.post;
-    document.getElementById("postTitle").textContent = p.title || "Без названия";
+    const p = data.post || {};
+    document.getElementById("postTitle").textContent = p.title || "Р‘РµР· РЅР°Р·РІР°РЅРёСЏ";
     document.getElementById("postDate").textContent = p.created_at
       ? new Date(p.created_at).toLocaleString("ru-RU", {
           day: "2-digit",
@@ -17,25 +16,27 @@ async function loadPost() {
         })
       : "";
 
-    // Тэги
+    // РўСЌРіРё
     const tagsWrap = document.getElementById("postTags");
     tagsWrap.innerHTML = "";
-    (p.tags || "")
-      .split(",")
-      .map(t => t.trim())
-      .filter(Boolean)
-      .forEach(t => {
-        const span = document.createElement("span");
-        span.className = "tag";
-        span.textContent = `#${t}`;
-        tagsWrap.appendChild(span);
-      });
+    const tagList = Array.isArray(p.tags)
+      ? p.tags
+      : String(p.tags || "")
+          .split(",")
+          .map(t => t.trim())
+          .filter(Boolean);
+    tagList.forEach(t => {
+      const span = document.createElement("span");
+      span.className = "tag";
+      span.textContent = `#${t}`;
+      tagsWrap.appendChild(span);
+    });
 
-    // Контент из API (уже HTML)
+    // РљРѕРЅС‚РµРЅС‚ РёР· API (СѓР¶Рµ HTML)
     const contentEl = document.getElementById("postContent");
-    contentEl.innerHTML = p.content_html || "<p><em>Контент пуст</em></p>";
+    contentEl.innerHTML = p.content_html || "<p><em>РљРѕРЅС‚РµРЅС‚ РїСѓСЃС‚</em></p>";
 
-    // Источники
+    // РСЃС‚РѕС‡РЅРёРєРё
     const srcWrap = document.getElementById("postSources");
     const ul = document.getElementById("postSourcesList");
     ul.innerHTML = "";
@@ -45,8 +46,8 @@ async function loadPost() {
       srcs.forEach(s => {
         const li = document.createElement("li");
         const a = document.createElement("a");
-        a.href = `post.php?id=${s.id}`;
-        a.textContent = s.title || `Источник #${s.id}`;
+        a.href = `/cataclysm/${s.id}`;
+        a.textContent = s.title || `РСЃС‚РѕС‡РЅРёРє #${s.id}`;
         li.appendChild(a);
         ul.appendChild(li);
       });
@@ -55,7 +56,7 @@ async function loadPost() {
     }
   } catch (e) {
     console.error(e);
-    document.getElementById("postTitle").textContent = "Ошибка загрузки";
+    document.getElementById("postTitle").textContent = "РћС€РёР±РєР° Р·Р°РіСЂСѓР·РєРё";
     document.getElementById("postContent").innerHTML = `<p>${e.message}</p>`;
   }
 }

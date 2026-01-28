@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", async () => {
+﻿document.addEventListener("DOMContentLoaded", async () => {
   const loader = document.getElementById("loader");
   const main = document.getElementById("main");
   const guidesContainer = document.getElementById("guides");
@@ -10,20 +10,23 @@ document.addEventListener("DOMContentLoaded", async () => {
     main.classList.remove("hidden");
 
     try {
-      const res = await fetch("/backside/api/posts_list.php");
+      const res = await fetch("/api/public/posts");
       const data = await res.json();
-      if (!data.ok) throw new Error(data.error || "Ошибка загрузки постов");
+      if (!data.ok) throw new Error(data.error || "РћС€РёР±РєР° Р·Р°РіСЂСѓР·РєРё РїРѕСЃС‚РѕРІ");
 
-      const guides = data.posts.filter(p => p.type === "guide" || !p.type);
-      const sources = data.posts.filter(p => p.type === "source");
+      const guides = Array.isArray(data.guides) ? data.guides : [];
+      const sources = Array.isArray(data.sources) ? data.sources : [];
 
-      const makeList = arr => arr.map(p => `
+      const makeList = arr => arr.map(p => {
+        const tags = Array.isArray(p.tags) ? p.tags.join(", ") : (p.tags || "Р‘РµР· С‚РµРіРѕРІ");
+        return `
         <div class="post">
           <h3>${p.title}</h3>
           <p>${(p.content || "").replace(/<[^>]*>?/gm, '').slice(0, 100)}...</p>
-          <div class="tags">${p.tags || "Без тегов"} — ${new Date(p.created_at).toLocaleDateString()}</div>
+          <div class="tags">${tags} вЂ” ${new Date(p.created_at).toLocaleDateString()}</div>
         </div>
-      `).join('');
+      `;
+      }).join('');
 
       guidesContainer.innerHTML = makeList(guides);
       sourcesContainer.innerHTML = makeList(sources);
@@ -36,13 +39,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }, 1600);
 
-  // Функция автопрокрутки (в пределах 100vh)
+  // Р¤СѓРЅРєС†РёСЏ Р°РІС‚РѕРїСЂРѕРєСЂСѓС‚РєРё (РІ РїСЂРµРґРµР»Р°С… 100vh)
   function startInfiniteScroll(el, direction = "down") {
     let speed = 0.3;
     let paused = false;
     let offset = 0;
     const content = el.innerHTML;
-    el.innerHTML += content; // дублируем для зацикливания
+    el.innerHTML += content; // РґСѓР±Р»РёСЂСѓРµРј РґР»СЏ Р·Р°С†РёРєР»РёРІР°РЅРёСЏ
 
     el.addEventListener("mouseenter", () => paused = true);
     el.addEventListener("mouseleave", () => paused = false);

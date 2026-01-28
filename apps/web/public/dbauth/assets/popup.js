@@ -470,7 +470,7 @@ async function loadSourcesSelect(selectEl, dropdownEl, currentEl, selectedId = "
 }
 
 // --- Main ---
-document.addEventListener("DOMContentLoaded", () => {
+function initPopups() {
   bindCategoryControls("guide");
   bindCategoryControls("edit");
 
@@ -741,4 +741,10 @@ document.addEventListener("DOMContentLoaded", () => {
       d.style.display = "none";
     });
   });
-});
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initPopups);
+} else {
+  initPopups();
+}
