@@ -21,6 +21,8 @@ services:
       - uploads-data:/data/uploads
     depends_on:
       - mongo
+    ports:
+      - "127.0.0.1:8080:8080"
 
   web:
     build: ./apps/web
@@ -29,6 +31,8 @@ services:
       NUXT_PUBLIC_API_BASE: "/api"
     depends_on:
       - api
+    ports:
+      - "127.0.0.1:3000:3000"
 
   nginx:
     image: nginx:1.27-alpine
