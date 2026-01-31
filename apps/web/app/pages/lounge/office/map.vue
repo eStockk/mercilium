@@ -5,8 +5,8 @@
 
     <header class="topbar">
       <div class="topbar__left">
-        <a class="topbar__back" href="/lounge/office/">в†ђ РќР°Р·Р°Рґ</a>
-        <div class="topbar__title" id="officeTitle">РљР°СЂС‚Р° РѕС„РёСЃР°</div>
+        <NuxtLink class="topbar__back" to="/lounge/office">< Назад</NuxtLink>
+        <div class="topbar__title" id="officeTitle">Карта офиса</div>
       </div>
       <div class="topbar__right">
         <div class="badge">Topology view</div>
@@ -18,20 +18,23 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue';
+
 useHead({
-  title: 'РљР°СЂС‚Р° РѕС„РёСЃР°',
+  title: 'Карта офиса',
   htmlAttrs: { lang: 'ru' },
   meta: [{ name: 'viewport', content: 'width=device-width, initial-scale=1' }],
   link: [
-    {
-      rel: 'stylesheet',
-      href: 'https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;900&display=swap'
-    },
+    { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;900&display=swap' },
     { rel: 'stylesheet', href: '/lounge/office/map.css' }
   ],
   script: [
-    { src: 'https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.33.1/cytoscape.min.js', defer: true },
-    { src: '/lounge/office/map-init.js', type: 'module' }
+    { src: 'https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.33.1/cytoscape.min.js' }
   ]
+});
+
+onMounted(async () => {
+  const mod = await import('~/legacy/office-map-page');
+  mod.initOfficeMapPage();
 });
 </script>

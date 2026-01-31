@@ -1,5 +1,6 @@
-<template>
+﻿<template>
   <div>
+    <!-- === КОСМИЧЕСКИЙ ЛОАДЕР === -->
     <div id="loader" class="loader-screen">
       <div class="loader-orbit"></div>
       <h1 class="loader-title">Mercilium Admin</h1>
@@ -12,6 +13,7 @@
       </div>
     </div>
 
+    <!-- === DASHBOARD === -->
     <main id="dashboard">
       <header class="top-bar">
         <div class="left">
@@ -45,6 +47,7 @@
       </section>
     </main>
 
+    <!-- === POPUP: Создание гайда === -->
     <div id="popup-guide" class="popup" aria-hidden="true">
       <div class="popup-content">
         <button class="close-btn" type="button" aria-label="Закрыть">×</button>
@@ -103,6 +106,7 @@
       </div>
     </div>
 
+    <!-- === POPUP: Создание источника === -->
     <div id="popup-source" class="popup" aria-hidden="true">
       <div class="popup-content">
         <button class="close-btn" type="button" aria-label="Закрыть">×</button>
@@ -131,6 +135,7 @@
       </div>
     </div>
 
+    <!-- === POPUP: Редактирование поста === -->
     <div id="popup-edit" class="popup" aria-hidden="true">
       <div class="popup-content">
         <button class="close-btn" type="button" aria-label="Закрыть">×</button>

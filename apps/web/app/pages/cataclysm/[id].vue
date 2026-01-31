@@ -1,32 +1,36 @@
 <template>
-  <div>
-    <canvas id="stars"></canvas>
+  <div class="cataclysm">
+    <canvas ref="starsRef" id="stars"></canvas>
 
     <div id="post-main">
-      <a href="/cataclysm" class="back-link">в†ђ РќР°Р·Р°Рґ</a>
+      <NuxtLink to="/cataclysm" class="back-link">< Назад</NuxtLink>
 
-      <div v-if="errorMessage" class="error-box">
-        <h2>вљ  РћС€РёР±РєР° Р·Р°РіСЂСѓР·РєРё РїРѕСЃС‚Р°</h2>
-        <p>{{ errorMessage }}</p>
+      <div v-if="loading" class="error-box">
+        <h2>Загрузка…</h2>
       </div>
 
-      <article v-else class="post-content quill-content">
-        <h1>{{ postTitle }}</h1>
+      <div v-else-if="error" class="error-box">
+        <h2>? Ошибка загрузки поста</h2>
+        <p>{{ error }}</p>
+      </div>
 
-        <div v-if="postDate" class="date">{{ postDate }}</div>
+      <article v-else-if="post" class="post-content quill-content">
+        <h1>{{ post.title }}</h1>
 
-        <div v-if="postTags.length" class="tags">
-          <span v-for="tag in postTags" :key="tag" class="tag">#{{ tag }}</span>
+        <div v-if="post.created_at" class="date">Опубликовано: {{ formatDate(post.created_at) }}</div>
+
+        <div v-if="post.tags.length" class="tags">
+          <span v-for="tag in post.tags" :key="tag" class="tag">{{ tag }}</span>
         </div>
 
         <div v-if="categories.length" class="category-switch">
           <button
-            v-for="(cat, index) in categories"
-            :key="cat.name + index"
+            v-for="(cat, idx) in categories"
+            :key="`${cat.name}-${idx}`"
             class="category-tab"
-            :class="{ active: activeCategory === index }"
+            :class="{ active: activeCategoryIndex === idx }"
             type="button"
-            @click="activeCategory = index"
+            @click="setCategory(idx)"
           >
             {{ cat.name }}
           </button>
@@ -34,110 +38,125 @@
 
         <div v-if="categories.length" class="category-content">
           <div
-            v-for="(cat, index) in categories"
-            :key="cat.name + '-panel-' + index"
+            v-for="(cat, idx) in categories"
+            :key="`${cat.name}-panel-${idx}`"
             class="category-panel quill-content"
-            :class="{ active: activeCategory === index }"
+            :class="{ active: activeCategoryIndex === idx }"
             v-html="cat.content"
-          />
+          ></div>
         </div>
-
-        <div v-else class="content-area" v-html="postContent"></div>
+        <div v-else class="content-area" v-html="post.contentHtml"></div>
 
         <section
-          v-if="sourcePost"
+          v-if="linkedSources.length"
           class="source-block"
-          @click="goToSource"
+          @click="openSource(linkedSources[0].id)"
         >
-          <canvas class="source-bg"></canvas>
+          <canvas ref="sourceCanvasRef" class="source-bg"></canvas>
           <div class="source-inner">
-            <h2>РСЃС‚РѕС‡РЅРёРє</h2>
-            <h3>{{ sourcePost.title }}</h3>
-            <div v-if="sourcePost.tags?.length" class="tags">
-              <span
-                v-for="tag in sourcePost.tags"
-                :key="tag"
-                class="tag"
-              >
-                {{ tag }}
-              </span>
+            <h2>Источник</h2>
+            <h3>{{ linkedSources[0].title }}</h3>
+            <div v-if="linkedSources[0].tags.length" class="tags">
+              <span v-for="tag in linkedSources[0].tags" :key="tag" class="tag">{{ tag }}</span>
             </div>
-            <div v-if="sourcePost.created_at" class="date">
-              РћРїСѓР±Р»РёРєРѕРІР°РЅРѕ: {{ formatDate(sourcePost.created_at) }}
-            </div>
+            <div class="date">Опубликовано: {{ formatDate(linkedSources[0].created_at) }}</div>
           </div>
         </section>
       </article>
     </div>
 
-    <button id="toTop" :class="{ visible: showTop }" @click="scrollTop">в†‘</button>
+    <button id="toTop" :class="{ visible: showToTop }" @click="scrollToTop">^</button>
   </div>
 </template>
 
 <script setup lang="ts">
+import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+
+type Category = { name: string; content: string };
+
+type PostResponse = {
+  ok: boolean;
+  post?: {
+    id: number;
+    title: string;
+    content: string;
+    content_html?: string;
+    created_at?: string;
+    tags?: string[];
+    categories?: Category[];
+    type?: string;
+  };
+  linked_sources?: Array<{ id: number; title: string; tags?: string[]; created_at?: string }>;
+  error?: string;
+};
+
 const route = useRoute();
-const runtimeConfig = useRuntimeConfig();
-const postId = computed(() => String(route.params.id || ''));
-const activeCategory = ref(0);
-const showTop = ref(false);
+const router = useRouter();
+const config = useRuntimeConfig();
 
-const { data, error } = await useFetch(() => `${runtimeConfig.public.apiBase}/public/posts/${postId.value}`, {
-  key: `post-${postId.value}`
+useHead({
+  title: 'Cataclysm — Mercilium',
+  htmlAttrs: { lang: 'ru' },
+  bodyAttrs: { class: 'cataclysm' },
+  meta: [{ name: 'viewport', content: 'width=device-width, initial-scale=1.0' }],
+  link: [
+    { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&display=swap' },
+    { rel: 'stylesheet', href: '/cataclysm/assets/post.css' }
+  ]
 });
 
-const errorMessage = computed(() => {
-  if (error.value) return error.value.message || 'РћС€РёР±РєР° СЃРµС‚Рё';
-  if (data.value && data.value.ok === false) return data.value.error || 'РћС€РёР±РєР° API';
-  return '';
-});
+const loading = ref(true);
+const error = ref('');
+const post = ref<{ id: number; title: string; contentHtml: string; created_at?: string; tags: string[]; type?: string } | null>(null);
+const categories = ref<Category[]>([]);
+const linkedSources = ref<Array<{ id: number; title: string; tags: string[]; created_at?: string }>>([]);
+const activeCategoryIndex = ref(0);
 
-const post = computed(() => data.value?.post || null);
-const postTitle = computed(() => post.value?.title || 'Р‘РµР· РЅР°Р·РІР°РЅРёСЏ');
-const postContent = computed(() => post.value?.content_html || post.value?.content || '');
-const postDate = computed(() => (post.value?.created_at ? formatDate(post.value.created_at) : ''));
-const postTags = computed(() => {
-  const tags = post.value?.tags || [];
-  return Array.isArray(tags) ? tags : String(tags).split(',').map(t => t.trim()).filter(Boolean);
-});
-const categories = computed(() => {
-  const cats = post.value?.categories || [];
-  if (!Array.isArray(cats)) return [];
-  return cats.map((c: any) => ({ name: c.name || 'РљР°С‚РµРіРѕСЂРёСЏ', content: c.content || '' }));
-});
-const sourcePost = computed(() => {
-  const src = data.value?.linked_sources || [];
-  if (Array.isArray(src) && src.length) return src[0];
-  return null;
-});
-function formatDate(input: string) {
-  const d = new Date(input);
-  return d.toLocaleString('ru-RU', {
+const showToTop = ref(false);
+
+const starsRef = ref<HTMLCanvasElement | null>(null);
+const sourceCanvasRef = ref<HTMLCanvasElement | null>(null);
+
+let rafId = 0;
+let resizeHandler: (() => void) | null = null;
+let sourceRaf = 0;
+let sourceResize: (() => void) | null = null;
+
+const formatDate = (value?: string) => {
+  if (!value) return '';
+  const date = new Date(value);
+  return date.toLocaleString('ru-RU', {
     day: '2-digit',
-    month: 'long',
+    month: '2-digit',
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit'
   });
-}
-
-const goToSource = () => {
-  if (sourcePost.value?.id) {
-    window.location.href = `/cataclysm/${sourcePost.value.id}`;
-  }
 };
 
-const scrollTop = () => {
+const setCategory = (index: number) => {
+  activeCategoryIndex.value = index;
+};
+
+const scrollToTop = () => {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
-const initStars = () => {
-  const canvas = document.getElementById('stars') as HTMLCanvasElement | null;
+const openSource = (id?: number) => {
+  if (!id) return;
+  router.push(`/cataclysm/${id}`);
+};
+
+const setupStars = () => {
+  const canvas = starsRef.value;
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
-  let stars: { x: number; y: number; r: number; vx: number; vy: number; a: number }[] = [];
 
-  const resize = () => {
+  let stars: Array<{ x: number; y: number; r: number; vx: number; vy: number; a: number }> = [];
+
+  const createStars = () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     const count = Math.max(150, Math.floor(canvas.width / 8));
@@ -151,9 +170,9 @@ const initStars = () => {
     }));
   };
 
-  const draw = () => {
+  const drawStars = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    for (const s of stars) {
+    stars.forEach((s) => {
       ctx.globalAlpha = s.a;
       ctx.fillStyle = '#fff';
       ctx.beginPath();
@@ -165,21 +184,23 @@ const initStars = () => {
       if (s.x > canvas.width) s.x = 0;
       if (s.y < 0) s.y = canvas.height;
       if (s.y > canvas.height) s.y = 0;
-    }
-    requestAnimationFrame(draw);
+    });
+    rafId = requestAnimationFrame(drawStars);
   };
 
-  window.addEventListener('resize', resize);
-  resize();
-  draw();
+  resizeHandler = createStars;
+  window.addEventListener('resize', createStars);
+  createStars();
+  rafId = requestAnimationFrame(drawStars);
 };
 
-const initSourceCanvas = () => {
-  const canvas = document.querySelector('.source-bg') as HTMLCanvasElement | null;
+const setupSourceStars = () => {
+  const canvas = sourceCanvasRef.value;
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
-  let stars: { x: number; y: number; r: number; vx: number; vy: number }[] = [];
+
+  let stars: Array<{ x: number; y: number; r: number; vx: number; vy: number }> = [];
   const STAR_COUNT = 70;
   const MAX_DISTANCE = 140;
 
@@ -197,9 +218,10 @@ const initSourceCanvas = () => {
 
   const draw = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+
     ctx.lineWidth = 0.4;
-    for (let i = 0; i < stars.length; i++) {
-      for (let j = i + 1; j < stars.length; j++) {
+    for (let i = 0; i < stars.length; i += 1) {
+      for (let j = i + 1; j < stars.length; j += 1) {
         const dx = stars[i].x - stars[j].x;
         const dy = stars[i].y - stars[j].y;
         const dist = Math.sqrt(dx * dx + dy * dy);
@@ -213,6 +235,7 @@ const initSourceCanvas = () => {
         }
       }
     }
+
     ctx.fillStyle = '#fff';
     for (const s of stars) {
       ctx.beginPath();
@@ -225,18 +248,23 @@ const initSourceCanvas = () => {
       if (s.y < 0) s.y = canvas.height;
       if (s.y > canvas.height) s.y = 0;
     }
-    requestAnimationFrame(draw);
+
+    sourceRaf = requestAnimationFrame(draw);
   };
 
+  sourceResize = resize;
   window.addEventListener('resize', resize);
   resize();
-  draw();
+  sourceRaf = requestAnimationFrame(draw);
 };
 
-const initReveal = () => {
+const observeContent = () => {
+  if (!process.client) return;
+  const items = document.querySelectorAll('.quill-content > *');
+  if (!items.length) return;
   const observer = new IntersectionObserver(
-    entries => {
-      entries.forEach(entry => {
+    (entries) => {
+      entries.forEach((entry) => {
         if (entry.isIntersecting) {
           entry.target.classList.add('visible');
           observer.unobserve(entry.target);
@@ -245,30 +273,71 @@ const initReveal = () => {
     },
     { threshold: 0.15 }
   );
-  document.querySelectorAll('.quill-content > *').forEach(el => observer.observe(el));
+  items.forEach((el) => observer.observe(el));
 };
 
+const fetchPost = async () => {
+  loading.value = true;
+  error.value = '';
+  try {
+    const id = Number(route.params.id);
+    if (!id) throw new Error('Некорректный ID');
+
+    const data = await $fetch<PostResponse>(`${config.public.apiBase}/public/posts/${id}`);
+    if (!data.ok || !data.post) throw new Error(data.error || 'Пост не найден');
+
+    post.value = {
+      id: data.post.id,
+      title: data.post.title,
+      contentHtml: data.post.content_html || data.post.content,
+      created_at: data.post.created_at,
+      tags: data.post.tags || [],
+      type: data.post.type
+    };
+
+    categories.value = data.post.categories || [];
+    activeCategoryIndex.value = 0;
+
+    linkedSources.value = (data.linked_sources || []).map((src) => ({
+      id: src.id,
+      title: src.title,
+      tags: src.tags || [],
+      created_at: src.created_at
+    }));
+
+    await nextTick();
+    observeContent();
+    setupSourceStars();
+  } catch (err: any) {
+    error.value = err?.message || 'Ошибка загрузки';
+    post.value = null;
+    categories.value = [];
+    linkedSources.value = [];
+  } finally {
+    loading.value = false;
+  }
+};
+
+watch(
+  () => route.params.id,
+  () => {
+    fetchPost();
+  }
+);
+
 onMounted(() => {
-  initStars();
-  initSourceCanvas();
-  initReveal();
-  const onScroll = () => {
-    showTop.value = window.scrollY > 400;
-  };
-  window.addEventListener('scroll', onScroll);
+  setupStars();
+  fetchPost();
+
+  window.addEventListener('scroll', () => {
+    showToTop.value = window.scrollY > 400;
+  });
 });
 
-useHead({
-  title: 'Cataclysm вЂ” Mercilium',
-  htmlAttrs: { lang: 'ru' },
-  bodyAttrs: { class: 'cataclysm' },
-  meta: [{ name: 'viewport', content: 'width=device-width, initial-scale=1.0' }],
-  link: [
-    {
-      rel: 'stylesheet',
-      href: 'https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800&display=swap'
-    },
-    { rel: 'stylesheet', href: '/cataclysm/assets/post.css' }
-  ]
+onBeforeUnmount(() => {
+  if (resizeHandler) window.removeEventListener('resize', resizeHandler);
+  if (rafId) cancelAnimationFrame(rafId);
+  if (sourceResize) window.removeEventListener('resize', sourceResize);
+  if (sourceRaf) cancelAnimationFrame(sourceRaf);
 });
 </script>

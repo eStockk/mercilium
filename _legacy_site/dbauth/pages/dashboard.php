@@ -40,29 +40,29 @@ if (empty($_SESSION['admin_id']) || ($_SESSION['admin_role'] ?? '') !== 'admin')
   <header class="top-bar">
     <div class="left">
       <h2>Mercilium Admin</h2>
-      <span class="subtitle">Панель управления</span>
+      <span class="subtitle">?????? ??????????</span>
     </div>
     <div class="right">
-      <button id="btnAddGuide" class="btn violet">+ Гайд</button>
-      <button id="btnAddSource" class="btn">+ Источник</button>
-      <a href="/dbauth/pages/logout.php" class="logout-btn">Выйти</a>
+      <button id="btnAddGuide" class="btn violet">+ ????</button>
+      <button id="btnAddSource" class="btn">+ ????????</button>
+      <a href="/dbauth/pages/logout.php" class="logout-btn">?????</a>
     </div>
   </header>
 
   <div class="search-bar">
-    <input id="globalSearch" class="search-input" type="search" placeholder="Поиск по гайдам и источникам">
+    <input id="globalSearch" class="search-input" type="search" placeholder="????? ?? ???????? ? ?????">
   </div>
 
   <section class="posts-section">
     <div class="post-block">
       <div class="block-head">
-        <h3>Гайды</h3>
+        <h3>?????</h3>
       </div>
       <div id="guidesList" class="posts-list"></div>
     </div>
     <div class="post-block">
       <div class="block-head">
-        <h3>Источники</h3>
+        <h3>?????????</h3>
       </div>
       <div id="sourcesList" class="posts-list"></div>
     </div>
@@ -100,17 +100,6 @@ if (empty($_SESSION['admin_id']) || ($_SESSION['admin_role'] ?? '') !== 'admin')
         </div>
         <div id="guide-editor" class="editor"></div>
       </div>
-    </div>
-    <div class="field" id="guide-source-block">
-      <label>Источник</label>
-      <div class="source-picker">
-        <button class="btn btn-select-source" type="button" data-scope="guide">Выбрать</button>
-        <div class="source-current" id="guide-source-current">Без источника</div>
-      </div>
-      <div class="source-dropdown tags-dropdown" id="guide-source-dropdown"></div>
-      <select id="guide-source-select" class="source-select" aria-hidden="true">
-        <option value="">Без источника</option>
-      </select>
     </div>
     <div class="field">
       <label>Теги</label>
@@ -191,12 +180,7 @@ if (empty($_SESSION['admin_id']) || ($_SESSION['admin_role'] ?? '') !== 'admin')
     </div>
     <div class="field" id="edit-source-block" style="display: none;">
       <label>Источник</label>
-      <div class="source-picker">
-        <button class="btn btn-select-source" type="button" data-scope="edit">Выбрать</button>
-        <div class="source-current" id="edit-source-current">Без источника</div>
-      </div>
-      <div class="source-dropdown tags-dropdown" id="edit-source-dropdown"></div>
-      <select id="edit-source-select" class="source-select" aria-hidden="true">
+      <select id="edit-source-select">
         <option value="">Без источника</option>
       </select>
     </div>

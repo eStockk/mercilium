@@ -1,0 +1,144 @@
+/* ====== Базовые ====== */
+.hidden { display: none; }
+body.cataclysm {
+  background: var(--midnight);
+  color: var(--text);
+  overflow: hidden;
+}
+
+/* ====== Основная структура ====== */
+#main {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100vh;
+  padding: 0 8%;
+}
+
+.left {
+  flex: 1;
+}
+
+.left .logo {
+  font-size: 80px;
+  font-weight: 800;
+  color: var(--text);
+  position: relative;
+  border-bottom: 3px solid transparent;
+  transition: color 0.3s ease, border-bottom 0.3s ease;
+}
+
+.left .logo:hover {
+  color: var(--violet);
+  border-bottom: 3px solid var(--violet);
+}
+
+.left .under-logo {
+  display: block;
+  position: absolute;
+  top: 90px;
+  left: 0;
+  opacity: 0;
+  font-size: 22px;
+  text-decoration: none;
+  color: var(--violet);
+  transition: opacity 0.4s ease;
+}
+
+.left .logo:hover .under-logo {
+  opacity: 1;
+}
+
+/* ====== Правая часть ====== */
+.right {
+  flex: 2;
+  display: flex;
+  gap: 60px;
+  justify-content: space-between;
+}
+
+.scroll-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 80vh;
+  overflow-y: auto;
+  border: 2px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 15px;
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(8px);
+}
+
+.scroll-section h2 {
+  margin-top: 0;
+  text-align: center;
+  font-size: 26px;
+  color: var(--violet);
+}
+
+.scroll-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ====== Карточки ====== */
+.post-card {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 10px;
+  padding: 16px;
+  cursor: pointer;
+  transition: transform 0.25s ease, background 0.25s ease;
+}
+
+.post-card:hover {
+  transform: scale(1.03);
+  background: rgba(148,0,211,0.25);
+}
+
+.post-card h3 {
+  margin: 0 0 8px;
+  color: #fff;
+}
+
+.post-card p {
+  margin: 0;
+  opacity: 0.8;
+  font-size: 15px;
+}
+
+.post-card .date {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #aaa;
+  text-align: right;
+}
+
+/* ====== Анимация появления ====== */
+.fade-in {
+  animation: fadeIn 1s ease forwards;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ====== Звёздный фон ====== */
+#stars {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 0;
+}
+
+/* ====== Адаптив ====== */
+@media (max-width: 900px) {
+  #main { flex-direction: column; padding: 40px 20px; }
+  .right { flex-direction: column; gap: 20px; width: 100%; }
+  .scroll-section { height: 45vh; }
+  .left .logo { text-align: center; font-size: 64px; }
+}

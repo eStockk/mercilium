@@ -3,8 +3,8 @@
     <canvas id="bg"></canvas>
 
     <header class="topbar">
-      <a class="back" href="/lounge/custom">в†ђ РќР°Р·Р°Рґ Рє РѕС„РёСЃР°Рј</a>
-      <h1 id="officeTitle">РћС„РёСЃ</h1>
+      <NuxtLink class="back" to="/lounge/custom">< Назад к офисам</NuxtLink>
+      <h1 id="officeTitle">Офис</h1>
       <div class="top-actions">
         <button id="btnToggleOnline" class="btn mini">offline</button>
       </div>
@@ -14,20 +14,21 @@
       <aside class="left">
         <div class="card">
           <div class="kv">
-            <span>РќР°Р·РІР°РЅРёРµ:</span><b id="infoName">вЂ”</b>
+            <span>Название:</span><b id="infoName">—</b>
           </div>
           <div class="kv">
-            <span>CIDR:</span><b id="infoCIDR">вЂ”</b>
+            <span>CIDR:</span><b id="infoCIDR">—</b>
           </div>
 
           <div class="kv">
-            <span>РЎС‚Р°С‚СѓСЃ:</span>
+            <span>Статус:</span>
             <b id="infoOnline" class="pill pill-off">offline</b>
           </div>
+          <button id="btnEditVlan" class="btn mini" style="margin-top:6px">Настроить VLAN</button>
 
           <div class="kv">
-            <span>РЎС‚Р°Р±РёР»СЊРЅРѕСЃС‚СЊ:</span>
-            <b id="infoStable" class="warn">РџСЂРѕРІРµСЂРєР°вЂ¦</b>
+            <span>Стабильность:</span>
+            <b id="infoStable" class="warn">Проверка…</b>
           </div>
 
           <div class="kv">
@@ -35,7 +36,7 @@
           </div>
 
           <div class="preview">
-            <img id="officeImg" alt="РР»Р»СЋСЃС‚СЂР°С†РёСЏ РѕС„РёСЃР°" />
+            <img id="officeImg" alt="Иллюстрация офиса" />
           </div>
         </div>
       </aside>
@@ -43,13 +44,13 @@
       <section class="right">
         <div class="console-actions">
           <button id="btnAddVM" class="btn violet">ADD_VM</button>
-          <button id="btnMap" class="btn ghost">РљР°СЂС‚Р° РѕС„РёСЃР°</button>
+          <button id="btnMap" class="btn ghost" @click="openMap">Карта офиса</button>
         </div>
 
         <div class="terminal" id="termBox">
           <div class="term-header">
             <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
-            <span class="title">РўРµСЂРјРёРЅР°Р» РѕС„РёСЃР°</span>
+            <span class="title">Терминал офиса</span>
           </div>
           <div class="term-body" id="termBody" tabindex="-1" aria-live="polite"></div>
 
@@ -60,24 +61,53 @@
         </div>
       </section>
     </main>
+
+    <div id="modalVlan" class="modal" aria-hidden="true">
+      <div class="modal__dialog">
+        <button class="modal__close" data-close>&times;</button>
+        <h2 class="modal__title">VLAN офиса</h2>
+        <div class="form">
+          <div class="vlans__head">
+            <span>VID + роль + вместимость</span>
+            <button id="btnAddVlanOffice" type="button" class="btn mini">+ VLAN</button>
+          </div>
+          <div id="vlanRowsOffice" class="vlans__rows"></div>
+          <div class="modal__footer">
+            <button id="btnSaveVlanOffice" class="btn violet">Сохранить</button>
+            <button class="btn ghost" data-close>Отмена</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
+
+const route = useRoute();
+const router = useRouter();
+
 useHead({
-  title: 'РћС„РёСЃ вЂ” Mercilium Lounge',
+  title: 'Офис — Mercilium Lounge',
   htmlAttrs: { lang: 'ru' },
   meta: [{ name: 'viewport', content: 'width=device-width, initial-scale=1' }],
   link: [
-    {
-      rel: 'stylesheet',
-      href: 'https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;900&display=swap'
-    },
+    { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;900&display=swap' },
     { rel: 'stylesheet', href: '/lounge/office/office.css' }
-  ],
-  script: [
-    { src: '/lounge/office/office.js', defer: true },
-    { src: '/lounge/office/vm-create-graphic.js', defer: true }
   ]
+});
+
+const openMap = () => {
+  const id = route.query.id ? String(route.query.id) : '';
+  router.push({ path: '/lounge/office/map', query: { id } });
+};
+
+onMounted(async () => {
+  const office = await import('~/legacy/office');
+  const vmGraphic = await import('~/legacy/vm-create-graphic');
+  office.initOffice();
+  vmGraphic.initVmGraphic();
 });
 </script>

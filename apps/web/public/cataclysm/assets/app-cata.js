@@ -436,4 +436,3 @@ document.addEventListener('DOMContentLoaded', () => {
   setupSearch();
   setupResponsiveSwitch(); // 🔹 динамическое переключение между режимами
 });
-

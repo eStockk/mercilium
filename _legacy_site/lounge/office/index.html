@@ -33,6 +33,7 @@
           <span>Статус:</span>
           <b id="infoOnline" class="pill pill-off">offline</b>
         </div>
+        <button id="btnEditVlan" class="btn mini" style="margin-top:6px">Настроить VLAN</button>
 
         <div class="kv">
           <span>Стабильность:</span>
@@ -79,7 +80,24 @@
       </div>
     </section>
   </main>
-</div>
+
+  
+  <div id="modalVlan" class="modal" aria-hidden="true">
+  <div class="modal__dialog">
+    <button class="modal__close" data-close>&times;</button>
+    <h2 class="modal__title">VLAN офиса</h2>
+    <div class="form">
+      <div class="vlans__head">
+        <span>VID + роль + вместимость</span>
+        <button id="btnAddVlanOffice" type="button" class="btn mini">+ VLAN</button>
+      </div>
+      <div id="vlanRowsOffice" class="vlans__rows"></div>
+      <div class="modal__footer">
+        <button id="btnSaveVlanOffice" class="btn violet">Сохранить</button>
+        <button class="btn ghost" data-close>Отмена</button>
+      </div>
+    </div>
+  </div>
 </div>
 
   <script src="./office.js"></script>

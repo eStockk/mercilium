@@ -409,66 +409,6 @@ function addTagToList(name, listSelector) {
   listEl.appendChild(span);
 }
 
-async function loadSourcesSelect(selectEl, dropdownEl, currentEl, selectedId = "") {
-  if (!selectEl) return;
-  try {
-    const res = await fetch("/api/admin/posts?type=source&status=published");
-    const data = await res.json();
-    if (!data.ok) return;
-    const list = Array.isArray(data.posts) ? data.posts : [];
-    const current = selectedId ? String(selectedId) : "";
-    selectEl.innerHTML = `<option value="">Без источника</option>`;
-    if (dropdownEl) dropdownEl.innerHTML = "";
-    if (dropdownEl) {
-      const noneBtn = document.createElement("button");
-      noneBtn.type = "button";
-      noneBtn.className = "tag-option";
-      noneBtn.textContent = "Без источника";
-      noneBtn.addEventListener("click", () => {
-        selectEl.value = "";
-        if (currentEl) currentEl.textContent = "Без источника";
-        dropdownEl.style.display = "none";
-      });
-      dropdownEl.appendChild(noneBtn);
-    }
-    list.forEach(p => {
-      const opt = document.createElement("option");
-      opt.value = p.id;
-      opt.textContent = p.title || `Источник #${p.id}`;
-      selectEl.appendChild(opt);
-      if (dropdownEl) {
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "tag-option";
-        btn.textContent = opt.textContent;
-        btn.addEventListener("click", () => {
-          selectEl.value = String(p.id);
-          if (currentEl) currentEl.textContent = opt.textContent;
-          dropdownEl.style.display = "none";
-        });
-        dropdownEl.appendChild(btn);
-      }
-    });
-    if (current && !list.some(p => String(p.id) === current)) {
-      const opt = document.createElement("option");
-      opt.value = current;
-      opt.textContent = `Источник #${current}`;
-      selectEl.appendChild(opt);
-    }
-    selectEl.value = current;
-    if (currentEl) {
-      if (current) {
-        const found = list.find(p => String(p.id) === current);
-        currentEl.textContent = found?.title || `Источник #${current}`;
-      } else {
-        currentEl.textContent = "Без источника";
-      }
-    }
-  } catch (e) {
-    console.error(e);
-  }
-}
-
 // --- Main ---
 function initPopups() {
   bindCategoryControls("guide");
@@ -478,7 +418,6 @@ function initPopups() {
   $("#btnAddGuide")?.addEventListener("click", () => {
     ensureEditors();
     if (!categoryState.guide.categories.length) initCategories("guide", [], { allowEmpty: true });
-    loadSourcesSelect($("#guide-source-select"), $("#guide-source-dropdown"), $("#guide-source-current"));
     openPopup($("#popup-guide"));
   });
   $("#btnAddSource")?.addEventListener("click", () => {
@@ -635,12 +574,7 @@ function initPopups() {
       if (data.post.type === "guide") {
         editLayout?.classList.remove("simple");
         $("#edit-source-block").style.display = "block";
-        await loadSourcesSelect(
-          $("#edit-source-select"),
-          $("#edit-source-dropdown"),
-          $("#edit-source-current"),
-          data.post.source_id || ""
-        );
+        $("#edit-source-select").value = data.post.source_id || "";
         const categories =
           typeof data.post.categories === "string"
             ? JSON.parse(data.post.categories || "[]")
@@ -715,30 +649,6 @@ function initPopups() {
       mode: "draft",
       source_id,
       categories
-    });
-  });
-
-  document.querySelectorAll(".btn-select-source").forEach(btn => {
-    btn.addEventListener("click", async () => {
-      const scope = btn.dataset.scope;
-      const dropdown = document.getElementById(`${scope}-source-dropdown`);
-      const selectEl = document.getElementById(`${scope}-source-select`);
-      const currentEl = document.getElementById(`${scope}-source-current`);
-      if (!dropdown || !selectEl) return;
-      if (dropdown.style.display === "block") {
-        dropdown.style.display = "none";
-        return;
-      }
-      await loadSourcesSelect(selectEl, dropdown, currentEl, selectEl.value);
-      dropdown.style.display = "block";
-    });
-  });
-
-  document.addEventListener("click", e => {
-    if (e.target.closest(".btn-select-source")) return;
-    if (e.target.closest(".source-dropdown")) return;
-    document.querySelectorAll(".source-dropdown").forEach(d => {
-      d.style.display = "none";
     });
   });
 }

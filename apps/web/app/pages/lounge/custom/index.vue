@@ -3,12 +3,12 @@
     <canvas id="scene"></canvas>
 
     <header class="topbar">
-      <a class="back" href="/lounge/">в†ђ РќР°Р·Р°Рґ РІ Lounge</a>
-      <h1>РџР»Р°РЅРёСЂРѕРІРєР° РѕС„РёСЃР°</h1>
+      <NuxtLink class="back" to="/lounge">< Назад в Lounge</NuxtLink>
+      <h1>Планировка офиса</h1>
       <div class="actions">
-        <button id="btnCreate" class="btn violet">+ РЎРѕР·РґР°С‚СЊ РѕС„РёСЃ</button>
-        <button id="btnImport" class="btn">РРјРїРѕСЂС‚РёСЂРѕРІР°С‚СЊ</button>
-        <button id="btnExport" class="btn">Р­РєСЃРїРѕСЂС‚РёСЂРѕРІР°С‚СЊ</button>
+        <button id="btnCreate" class="btn violet">+ Создать офис</button>
+        <button id="btnImport" class="btn">Импортировать</button>
+        <button id="btnExport" class="btn">Экспортировать</button>
       </div>
     </header>
 
@@ -17,14 +17,14 @@
         <div id="offices" class="office-list empty">
           <div class="empty-note">
             <div class="empty-ill"></div>
-            <h3>РћС„РёСЃС‹ РµС‰С‘ РЅРµ СЃРѕР·РґР°РЅС‹</h3>
-            <p>РќР°Р¶РјРёС‚Рµ В«РЎРѕР·РґР°С‚СЊ РѕС„РёСЃВ», С‡С‚РѕР±С‹ РґРѕР±Р°РІРёС‚СЊ РїРµСЂРІС‹Р№.</p>
+            <h3>Офисы ещё не созданы</h3>
+            <p>Нажмите «Создать офис», чтобы добавить первый.</p>
           </div>
         </div>
-        <h3 class="section-title">РўСѓРЅРЅРµР»Рё / Р’РЅРµС€РЅРёРµ СЃРІСЏР·Рё</h3>
+        <h3 class="section-title">Туннели / Внешние связи</h3>
         <div id="linksList" class="links-list empty">
           <div class="empty-note small">
-            <p>РџРѕРєР° РЅРµС‚ РІРЅРµС€РЅРёС… СЃРІСЏР·РµР№. РћС‚РєСЂРѕР№ РєР°СЂС‚РѕС‡РєСѓ РѕС„РёСЃР° в†’ В«Р’С…РѕРґС‹/Р’С‹С…РѕРґС‹В».</p>
+            <p>Пока нет внешних связей. Открой карточку офиса > «Входы/Выходы».</p>
           </div>
         </div>
       </section>
@@ -32,8 +32,8 @@
       <aside class="right">
         <div id="details" class="details placeholder">
           <div class="hint">
-            <h3>Р’С‹Р±РµСЂРёС‚Рµ РѕС„РёСЃ СЃР»РµРІР°</h3>
-            <p>Р—РґРµСЃСЊ РїРѕСЏРІРёС‚СЃСЏ РґРµС‚Р°Р»СЊРЅР°СЏ РёРЅС„РѕСЂРјР°С†РёСЏ, VLAN Рё В«Р’С…РѕРґС‹/Р’С‹С…РѕРґС‹В».</p>
+            <h3>Выберите офис слева</h3>
+            <p>Здесь появится детальная информация, VLAN и «Входы/Выходы».</p>
           </div>
         </div>
       </aside>
@@ -42,33 +42,33 @@
     <div id="modalOffice" class="modal" aria-hidden="true">
       <div class="modal__dialog">
         <button class="modal__close" data-close>&times;</button>
-        <h2 class="modal__title" id="officeModalTitle">РЎРѕР·РґР°С‚СЊ РѕС„РёСЃ</h2>
+        <h2 class="modal__title" id="officeModalTitle">Создать офис</h2>
 
         <div class="form">
           <label class="field">
-            <span>РќР°Р·РІР°РЅРёРµ РѕС„РёСЃР°</span>
-            <input id="inpName" type="text" placeholder="РќР°РїСЂ. Р“Р»Р°РІРЅС‹Р№ РѕС„РёСЃ" />
+            <span>Название офиса</span>
+            <input id="inpName" type="text" placeholder="Напр. Главный офис" />
           </label>
 
           <label class="field with-help">
-            <span>РџРѕРґСЃРµС‚СЊ (CIDR)</span>
+            <span>Подсеть (CIDR)</span>
             <div class="inline">
-              <input id="inpCIDR" type="text" placeholder="РќР°РїСЂ. 192.168.10.0/24" />
+              <input id="inpCIDR" type="text" placeholder="Напр. 192.168.10.0/24" />
               <button class="help" id="btnCidrHelp" type="button">?</button>
             </div>
           </label>
 
           <div class="vlans">
             <div class="vlans__head">
-              <span>VLAN (VID + СЂРѕР»СЊ)</span>
+              <span>VLAN (VID + роль)</span>
               <button id="btnAddVlan" type="button" class="btn mini">+ VLAN</button>
             </div>
             <div id="vlanRows" class="vlans__rows"></div>
           </div>
 
           <div class="modal__footer">
-            <button id="btnSaveOffice" class="btn violet">РџРѕСЃС‚СЂРѕРёС‚СЊ РѕС„РёСЃ</button>
-            <button class="btn ghost" data-close>РћС‚РјРµРЅР°</button>
+            <button id="btnSaveOffice" class="btn violet">Построить офис</button>
+            <button class="btn ghost" data-close>Отмена</button>
           </div>
         </div>
       </div>
@@ -77,33 +77,33 @@
     <div id="modalIO" class="modal" aria-hidden="true">
       <div class="modal__dialog wide">
         <button class="modal__close" data-close>&times;</button>
-        <h2 class="modal__title">Р’С…РѕРґС‹ / Р’С‹С…РѕРґС‹</h2>
+        <h2 class="modal__title">Входы / Выходы</h2>
 
         <div class="io-grid">
           <div class="io-card io-gre" data-type="GRE">
             <div class="io-dot" style="--c:#ff8c3a"></div>
             <h3>GRE</h3>
-            <p>РўСѓРЅРЅРµР»СЊ РјРµР¶РґСѓ РѕС„РёСЃР°РјРё РґР»СЏ СЃРµС‚РµРІРѕРіРѕ СЃРѕРµРґРёРЅРµРЅРёСЏ.</p>
+            <p>Туннель между офисами для сетевого соединения.</p>
           </div>
           <div class="io-card io-isp" data-type="ISP">
             <div class="io-dot" style="--c:#32cd32"></div>
             <h3>ISP</h3>
-            <p>Р’РЅРµС€РЅСЏСЏ РјР°С€РёРЅР° СЃ РїСЂСЏРјС‹Рј РґРѕСЃС‚СѓРїРѕРј РІ РёРЅС‚РµСЂРЅРµС‚.</p>
+            <p>Внешняя машина с прямым доступом в интернет.</p>
           </div>
           <div class="io-card io-emach" data-type="EMach">
             <div class="io-dot" style="--c:#3aa0ff"></div>
             <h3>EMach</h3>
-            <p>Р’РЅРµС€РЅСЏСЏ РјР°С€РёРЅР° Р±РµР· РїСЂСЏРјРѕРіРѕ РґРѕСЃС‚СѓРїР° (РЅСѓР¶РµРЅ РѕС‚РґРµР»СЊРЅС‹Р№ РѕС„РёСЃ).</p>
+            <p>Внешняя машина без прямого доступа (нужен отдельный офис).</p>
           </div>
           <div class="io-card io-ipip" data-type="IPIP">
             <div class="io-dot" style="--c:#9aa0aa"></div>
             <h3>IpIp</h3>
-            <p>IPIP-С‚СѓРЅРЅРµР»СЊ РјРµР¶РґСѓ РґРІСѓРјСЏ РѕС„РёСЃР°РјРё.</p>
+            <p>IPIP-туннель между двумя офисами.</p>
           </div>
         </div>
 
         <div class="io-footer">
-          <button class="btn ghost" data-close>Р—Р°РєСЂС‹С‚СЊ</button>
+          <button class="btn ghost" data-close>Закрыть</button>
         </div>
       </div>
     </div>
@@ -111,12 +111,10 @@
     <div id="modalMsg" class="modal" aria-hidden="true">
       <div class="modal__dialog">
         <button class="modal__close" data-close>&times;</button>
-        <h2 class="modal__title">РўСЂРµР±СѓСЋС‚СЃСЏ РІРёСЂС‚СѓР°Р»СЊРЅС‹Рµ РјР°С€РёРЅС‹</h2>
-        <p class="muted">
-          Р’РЅСѓС‚СЂРё РѕС„РёСЃР° РЅРµС‚ РІРёСЂС‚СѓР°Р»СЊРЅС‹С… РјР°С€РёРЅ РґР»СЏ РїРѕРґРєР»СЋС‡РµРЅРёСЏ РёР·РІРЅРµ. РЎРѕР·РґР°Р№С‚Рµ РїР°СЂСѓ Р’Рњ.
-        </p>
+        <h2 class="modal__title">Требуются виртуальные машины</h2>
+        <p class="muted">Внутри офиса нет виртуальных машин для подключения извне. Создайте пару ВМ.</p>
         <div class="modal__footer">
-          <button class="btn violet" data-close>Р’РµСЂРЅСѓС‚СЊСЃСЏ</button>
+          <button class="btn violet" data-close>Вернуться</button>
         </div>
       </div>
     </div>
@@ -124,32 +122,32 @@
     <div id="modalTunnelBind" class="modal" aria-hidden="true">
       <div class="modal__dialog">
         <button class="modal__close" data-close>&times;</button>
-        <h2 class="modal__title">РџСЂРёРІСЏР·РєР° РёРЅС‚РµСЂС„РµР№СЃРѕРІ (С‚СѓРЅРЅРµР»СЊ)</h2>
+        <h2 class="modal__title">Привязка интерфейсов (туннель)</h2>
 
         <div class="form">
-          <h4>РЎС‚РѕСЂРѕРЅР° A</h4>
+          <h4>Сторона A</h4>
           <label class="field">
-            <span>Р’РёСЂС‚СѓР°Р»СЊРЅР°СЏ РјР°С€РёРЅР°</span>
+            <span>Виртуальная машина</span>
             <select id="tunA_vm"></select>
           </label>
           <label class="field">
-            <span>РРЅС‚РµСЂС„РµР№СЃ</span>
+            <span>Интерфейс</span>
             <select id="tunA_if"></select>
           </label>
 
-          <h4>РЎС‚РѕСЂРѕРЅР° B</h4>
+          <h4>Сторона B</h4>
           <label class="field">
-            <span>Р’РёСЂС‚СѓР°Р»СЊРЅР°СЏ РјР°С€РёРЅР°</span>
+            <span>Виртуальная машина</span>
             <select id="tunB_vm"></select>
           </label>
           <label class="field">
-            <span>РРЅС‚РµСЂС„РµР№СЃ</span>
+            <span>Интерфейс</span>
             <select id="tunB_if"></select>
           </label>
 
           <div class="modal__footer">
-            <button id="btnSaveTunnelBind" class="btn violet">РЎРѕС…СЂР°РЅРёС‚СЊ</button>
-            <button class="btn ghost" data-close>РћС‚РјРµРЅР°</button>
+            <button id="btnSaveTunnelBind" class="btn violet">Сохранить</button>
+            <button class="btn ghost" data-close>Отмена</button>
           </div>
         </div>
       </div>
@@ -158,14 +156,14 @@
     <div id="modalISPBind" class="modal" aria-hidden="true">
       <div class="modal__dialog wide">
         <button class="modal__close" data-close>&times;</button>
-        <h2 class="modal__title">РџРѕРґРєР»СЋС‡РµРЅРёСЏ ISP Рє РѕС„РёСЃР°Рј</h2>
+        <h2 class="modal__title">Подключения ISP к офисам</h2>
 
         <div class="form">
           <div id="ispPeersList" class="vlan-list"></div>
 
           <div class="actions-line" style="margin-top:10px">
-            <button id="btnAddIspPeer" class="btn">+ Р”РѕР±Р°РІРёС‚СЊ РѕС„РёСЃ</button>
-            <button id="btnSaveIspBind" class="btn violet" style="margin-left:auto">РЎРѕС…СЂР°РЅРёС‚СЊ</button>
+            <button id="btnAddIspPeer" class="btn">+ Добавить офис</button>
+            <button id="btnSaveIspBind" class="btn violet" style="margin-left:auto">Сохранить</button>
           </div>
         </div>
       </div>
@@ -174,15 +172,15 @@
     <div id="modalEM" class="modal" aria-hidden="true">
       <div class="modal__dialog">
         <button class="modal__close" data-close>&times;</button>
-        <h2 class="modal__title">Р”РѕР±Р°РІРёС‚СЊ РІРЅРµС€РЅСЋСЋ РјР°С€РёРЅСѓ (EMach)</h2>
+        <h2 class="modal__title">Добавить внешнюю машину (EMach)</h2>
         <div class="form">
           <label class="field">
-            <span>РќР°Р·РІР°РЅРёРµ</span>
-            <input id="emName" type="text" placeholder="РќР°РїСЂ. Р’РЅРµС€РЅРёР№ РѕС„РёСЃ-РҐ">
+            <span>Название</span>
+            <input id="emName" type="text" placeholder="Напр. Внешний офис-X">
           </label>
 
           <label class="field">
-            <span>Р”РёСЃС‚СЂРёР±СѓС‚РёРІ</span>
+            <span>Дистрибутив</span>
             <select id="emDistro">
               <option value="ecorouter">EcoRouter</option>
               <option value="altserver">ALT Server</option>
@@ -191,8 +189,8 @@
           </label>
 
           <div class="modal__footer">
-            <button id="btnCreateEM" class="btn violet">Р”РѕР±Р°РІРёС‚СЊ</button>
-            <button class="btn ghost" data-close>РћС‚РјРµРЅР°</button>
+            <button id="btnCreateEM" class="btn violet">Добавить</button>
+            <button class="btn ghost" data-close>Отмена</button>
           </div>
         </div>
       </div>
@@ -201,13 +199,13 @@
     <div id="modalLinkInfo" class="modal" aria-hidden="true">
       <div class="modal__dialog">
         <button class="modal__close" data-close>&times;</button>
-        <h2 class="modal__title" id="linkInfoTitle">РРЅС„РѕСЂРјР°С†РёСЏ Рѕ СЃРІСЏР·Рё</h2>
+        <h2 class="modal__title" id="linkInfoTitle">Информация о связи</h2>
 
         <div class="form" id="linkInfoContent"></div>
 
         <div class="modal__footer">
-          <button id="btnDeleteLink" class="btn ghost">РЈРґР°Р»РёС‚СЊ СЃРІСЏР·СЊ</button>
-          <button class="btn violet" data-close>Р—Р°РєСЂС‹С‚СЊ</button>
+          <button id="btnDeleteLink" class="btn ghost">Удалить связь</button>
+          <button class="btn violet" data-close>Закрыть</button>
         </div>
       </div>
     </div>
@@ -221,7 +219,7 @@
         </h2>
         <p id="resultText" class="muted"></p>
         <div class="modal__footer">
-          <button class="btn violet" data-close>РћРє</button>
+          <button class="btn violet" data-close>Ок</button>
         </div>
       </div>
     </div>
@@ -231,17 +229,20 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from 'vue';
+
 useHead({
-  title: 'Lounge вЂ” РџР»Р°РЅРёСЂРѕРІРєР° РѕС„РёСЃР°',
+  title: 'Lounge — Планировка офиса',
   htmlAttrs: { lang: 'ru' },
   meta: [{ name: 'viewport', content: 'width=device-width, initial-scale=1' }],
   link: [
-    {
-      rel: 'stylesheet',
-      href: 'https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;900&display=swap'
-    },
+    { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;900&display=swap' },
     { rel: 'stylesheet', href: '/lounge/custom/assets/planner.css' }
-  ],
-  script: [{ src: '/lounge/custom/assets/planner.js', defer: true }]
+  ]
+});
+
+onMounted(async () => {
+  const mod = await import('~/legacy/planner');
+  mod.initPlanner();
 });
 </script>

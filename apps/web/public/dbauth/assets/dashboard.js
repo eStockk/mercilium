@@ -1,4 +1,4 @@
-const initDashboard = () => {
+document.addEventListener("DOMContentLoaded", () => {
   const loader = document.getElementById("loader");
   const guidesList = document.getElementById("guidesList");
   const sourcesList = document.getElementById("sourcesList");
@@ -14,21 +14,10 @@ const initDashboard = () => {
     }, 1800);
   }
 
-  function normalizeTags(value) {
-    if (Array.isArray(value)) return value;
-    if (typeof value === "string") {
-      return value
-        .split(",")
-        .map(t => t.trim())
-        .filter(Boolean);
-    }
-    return [];
-  }
-
   function matchesQuery(p, query) {
     if (!query) return true;
     const title = (p.title || "").toLowerCase();
-    const tags = normalizeTags(p.tags).join(" ").toLowerCase();
+    const tags = (p.tags || "").toLowerCase();
     return title.includes(query) || tags.includes(query);
   }
 
@@ -60,17 +49,18 @@ const initDashboard = () => {
   }
 
   function renderCard(p) {
-    const tags = normalizeTags(p.tags)
-      .map(t => `<span class="tag">#${t}</span>`)
-      .join(" ");
+    const tags = (p.tags || "")
+      .split(",")
+      .map(t => `<span class="tag">#${t.trim()}</span>`)
+      .join(" " );
     return `
       <div class="post-card">
         <h4>${p.title || "Без названия"}</h4>
         <div class="tags">${tags}</div>
         <p class="date">${new Date(p.created_at).toLocaleString("ru-RU")}</p>
         <div class="actions">
-          <button class="btn btn-mini edit-post" data-id="${p.id}">Редактировать</button>
-          <button class="btn btn-mini btn-danger delete-post" data-id="${p.id}">Удалить</button>
+          <button class="edit-post" data-id="${p.id}">Редактировать</button>
+          <button class="delete-post" data-id="${p.id}">Удалить</button>
         </div>
       </div>`;
   }
@@ -83,7 +73,7 @@ const initDashboard = () => {
         const res = await fetch(`/api/admin/posts/${id}`, { method: "DELETE" });
         const data = await res.json();
         if (data.ok) refreshPosts();
-        else alert("Не удалось удалить");
+        else alert("Ошибка удаления");
       };
     });
   }
@@ -100,10 +90,4 @@ const initDashboard = () => {
   globalSearch?.addEventListener("input", () => renderLists());
 
   refreshPosts();
-};
-
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", initDashboard);
-} else {
-  initDashboard();
-}
+});

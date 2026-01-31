@@ -1,4 +1,4 @@
-﻿document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", async () => {
   const loader = document.getElementById("loader");
   const main = document.getElementById("main");
   const guidesContainer = document.getElementById("guides");
@@ -12,21 +12,18 @@
     try {
       const res = await fetch("/api/public/posts");
       const data = await res.json();
-      if (!data.ok) throw new Error(data.error || "РћС€РёР±РєР° Р·Р°РіСЂСѓР·РєРё РїРѕСЃС‚РѕРІ");
+      if (!data.ok) throw new Error(data.error || "Ошибка загрузки постов");
 
       const guides = Array.isArray(data.guides) ? data.guides : [];
       const sources = Array.isArray(data.sources) ? data.sources : [];
 
-      const makeList = arr => arr.map(p => {
-        const tags = Array.isArray(p.tags) ? p.tags.join(", ") : (p.tags || "Р‘РµР· С‚РµРіРѕРІ");
-        return `
+      const makeList = arr => arr.map(p => `
         <div class="post">
           <h3>${p.title}</h3>
           <p>${(p.content || "").replace(/<[^>]*>?/gm, '').slice(0, 100)}...</p>
-          <div class="tags">${tags} вЂ” ${new Date(p.created_at).toLocaleDateString()}</div>
+          <div class="tags">${p.tags || "Без тегов"} — ${new Date(p.created_at).toLocaleDateString()}</div>
         </div>
-      `;
-      }).join('');
+      `).join('');
 
       guidesContainer.innerHTML = makeList(guides);
       sourcesContainer.innerHTML = makeList(sources);
@@ -39,13 +36,13 @@
     }
   }, 1600);
 
-  // Р¤СѓРЅРєС†РёСЏ Р°РІС‚РѕРїСЂРѕРєСЂСѓС‚РєРё (РІ РїСЂРµРґРµР»Р°С… 100vh)
+  // Функция автопрокрутки (в пределах 100vh)
   function startInfiniteScroll(el, direction = "down") {
     let speed = 0.3;
     let paused = false;
     let offset = 0;
     const content = el.innerHTML;
-    el.innerHTML += content; // РґСѓР±Р»РёСЂСѓРµРј РґР»СЏ Р·Р°С†РёРєР»РёРІР°РЅРёСЏ
+    el.innerHTML += content; // дублируем для зацикливания
 
     el.addEventListener("mouseenter", () => paused = true);
     el.addEventListener("mouseleave", () => paused = false);

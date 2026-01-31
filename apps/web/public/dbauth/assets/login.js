@@ -37,14 +37,14 @@ async function loginSubmit(e){
   const password = document.getElementById('password').value;
 
   try{
-    const res = await fetch('api/auth.php', {
+    const res = await fetch('/api/auth/login', {
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({login, password})
     });
     const data = await res.json();
     if(data.ok){
-      location.href = 'dashboard.php';
+      location.href = '/admin';
     }else{
       msg.textContent = data.error || "Ошибка авторизации";
     }
