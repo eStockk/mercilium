@@ -38,6 +38,7 @@ function imageHandler() {
     try {
       const resp = await fetch("/api/admin/upload", {
         method: "POST",
+        credentials: "include",
         body: fd
       });
       const json = await resp.json();
@@ -312,7 +313,7 @@ async function savePost({ action, id, type, title, content, tags, mode, source_i
   }
 
   try {
-    const resp = await fetch("/api/admin/posts", { method: "POST", body: fd });
+    const resp = await fetch("/api/admin/posts", { method: "POST", body: fd, credentials: "include" });
     const json = await resp.json();
     if (json.ok) {
       alert("Сохранено");
@@ -330,7 +331,7 @@ async function savePost({ action, id, type, title, content, tags, mode, source_i
 // --- CATEGORIES ---
 async function loadCategoriesList(dropdown, prefix) {
   try {
-    const res = await fetch("/api/admin/categories");
+    const res = await fetch("/api/admin/categories", { credentials: "include" });
     const data = await res.json();
     if (!data.ok) return;
     dropdown.innerHTML = "";
@@ -357,7 +358,7 @@ async function createCategory(prefix, name) {
     const fd = new FormData();
     fd.append("action", "create");
     fd.append("name", trimmed);
-    const res = await fetch("/api/admin/categories", { method: "POST", body: fd });
+    const res = await fetch("/api/admin/categories", { method: "POST", body: fd, credentials: "include" });
     const data = await res.json();
     if (data.ok) {
       addCategory(prefix, trimmed);
@@ -374,7 +375,7 @@ async function createCategory(prefix, name) {
 // --- TAGS ---
 async function loadTagsList(dropdown, listSelector) {
   try {
-    const res = await fetch("/api/admin/tags");
+    const res = await fetch("/api/admin/tags", { credentials: "include" });
     const data = await res.json();
     if (!data.ok) return;
     dropdown.innerHTML = "";
@@ -460,7 +461,7 @@ function initPopups() {
         const fd = new FormData();
         fd.append("action", "create");
         fd.append("name", val);
-        const res = await fetch("/api/admin/tags", { method: "POST", body: fd });
+        const res = await fetch("/api/admin/tags", { method: "POST", body: fd, credentials: "include" });
         const data = await res.json();
         if (data.ok) {
           addTagToList(val, "#" + field.querySelector(".tags-list").id);
@@ -559,7 +560,7 @@ function initPopups() {
     if (!btn) return;
     const id = btn.dataset.id;
     try {
-      const res = await fetch(`/api/admin/posts/${id}`);
+      const res = await fetch(`/api/admin/posts/${id}`, { credentials: "include" });
       const data = await res.json();
       if (!data.ok) return alert("Failed to load post");
       ensureEditors();

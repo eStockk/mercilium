@@ -93,7 +93,18 @@ onMounted(() => {
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas);
 
-  const drawStars = () => {
+  const maxFPS = 30;
+  let lastFrame = 0;
+  let running = true;
+
+  const drawStars = (ts: number) => {
+    if (!running) return;
+    if (ts - lastFrame < 1000 / maxFPS) {
+      rafId = requestAnimationFrame(drawStars);
+      return;
+    }
+    lastFrame = ts;
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     const gradient = ctx.createRadialGradient(
@@ -143,6 +154,12 @@ onMounted(() => {
     rafId = requestAnimationFrame(drawStars);
   };
 
+  const onVisibility = () => {
+    running = !document.hidden;
+    if (running) rafId = requestAnimationFrame(drawStars);
+  };
+
+  document.addEventListener('visibilitychange', onVisibility);
   rafId = requestAnimationFrame(drawStars);
 
   const minTime = 1200;
@@ -165,6 +182,7 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
+  document.removeEventListener('visibilitychange', onVisibility);
   if (rafId) cancelAnimationFrame(rafId);
   if (resizeHandler) window.removeEventListener('resize', resizeHandler);
 });

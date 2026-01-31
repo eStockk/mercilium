@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", () => {
+function initDashboard() {
   const loader = document.getElementById("loader");
   const guidesList = document.getElementById("guidesList");
   const sourcesList = document.getElementById("sourcesList");
@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function refreshPosts() {
     if (!guidesList || !sourcesList) return;
     try {
-      const res = await fetch("/api/admin/summary");
+      const res = await fetch("/api/admin/summary", { credentials: "include" });
       const data = await res.json();
       if (!data.ok) throw new Error(data.error || "Ошибка API");
 
@@ -70,7 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
       btn.onclick = async () => {
         if (!confirm("Удалить пост?")) return;
         const id = btn.dataset.id;
-        const res = await fetch(`/api/admin/posts/${id}`, { method: "DELETE" });
+        const res = await fetch(`/api/admin/posts/${id}`, { method: "DELETE", credentials: "include" });
         const data = await res.json();
         if (data.ok) refreshPosts();
         else alert("Ошибка удаления");
@@ -90,4 +90,10 @@ document.addEventListener("DOMContentLoaded", () => {
   globalSearch?.addEventListener("input", () => renderLists());
 
   refreshPosts();
-});
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initDashboard);
+} else {
+  initDashboard();
+}

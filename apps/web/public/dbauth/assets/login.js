@@ -6,7 +6,13 @@
   function resize(){ w=c.width=innerWidth; h=c.height=innerHeight; stars = Array.from({length: Math.max(120, Math.floor(w*h/12000))}, ()=>({
     x:Math.random()*w, y:Math.random()*h, r:Math.random()*1.5+.3, vx:(Math.random()-.5)*.06, vy:(Math.random()-.5)*.06
   })); }
-  function draw(){
+  const maxFPS = 30;
+  let lastFrame = 0;
+  let running = true;
+  function draw(ts){
+    if(!running) return;
+    if(ts - lastFrame < 1000/maxFPS){ requestAnimationFrame(draw); return; }
+    lastFrame = ts;
     ctx.clearRect(0,0,w,h);
     // bg glow
     const g=ctx.createRadialGradient(w/2,h/2,0,w/2,h/2,w/1.2); g.addColorStop(0,"#090922"); g.addColorStop(1,"#02020a");
@@ -14,7 +20,8 @@
     for(const s of stars){ ctx.globalAlpha=.9; ctx.fillStyle="#fff"; ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2); ctx.fill(); s.x+=s.vx; s.y+=s.vy; if(s.x<0)s.x=w; if(s.x>w)s.x=0; if(s.y<0)s.y=h; if(s.y>h)s.y=0; }
     requestAnimationFrame(draw);
   }
-  addEventListener('resize', resize); resize(); draw();
+  document.addEventListener('visibilitychange', ()=>{ running = !document.hidden; if(running) requestAnimationFrame(draw); });
+  addEventListener('resize', resize); resize(); requestAnimationFrame(draw);
 })();
 
 // Loader statuses
@@ -38,6 +45,7 @@ async function loginSubmit(e){
 
   try{
     const res = await fetch('/api/auth/login', {
+      credentials: 'include',
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body: JSON.stringify({login, password})

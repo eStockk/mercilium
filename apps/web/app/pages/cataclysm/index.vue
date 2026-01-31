@@ -27,7 +27,7 @@
             type="button"
             @click="activeTab = 'guides'"
           >
-            Гайды
+            Р“Р°Р№РґС‹
           </button>
           <button
             class="tab-btn"
@@ -35,7 +35,7 @@
             type="button"
             @click="activeTab = 'sources'"
           >
-            Источники
+            РСЃС‚РѕС‡РЅРёРєРё
           </button>
         </div>
 
@@ -45,9 +45,9 @@
               id="searchInput"
               v-model="search"
               type="text"
-              placeholder="Поиск по названию или тегам..."
+              placeholder="РџРѕРёСЃРє РїРѕ РЅР°Р·РІР°РЅРёСЋ РёР»Рё С‚РµРіР°Рј..."
             />
-            <button id="tagsBtn" type="button" @click="toggleTagsPopup">Теги</button>
+            <button id="tagsBtn" type="button" @click="toggleTagsPopup">РўРµРіРё</button>
           </div>
 
           <div id="selectedTags" class="tags-selected">
@@ -64,7 +64,7 @@
 
           <div id="tagsPopup" class="tags-popup" :class="{ active: tagsPopupOpen }">
             <div class="tags-list">
-              <div v-if="tagsLoading" style="color:#aaa;">Загрузка...</div>
+              <div v-if="tagsLoading" style="color:#aaa;">Р—Р°РіСЂСѓР·РєР°...</div>
               <div
                 v-for="tag in tagsList"
                 :key="tag"
@@ -75,7 +75,7 @@
               >
                 #{{ tag }}
               </div>
-              <div v-if="!tagsLoading && tagsList.length === 0" style="color:#aaa;">Нет тегов</div>
+              <div v-if="!tagsLoading && tagsList.length === 0" style="color:#aaa;">РќРµС‚ С‚РµРіРѕРІ</div>
             </div>
           </div>
         </div>
@@ -83,21 +83,21 @@
 
       <div class="right">
         <div class="scroll-block" :class="{ active: !isMobile || activeTab === 'guides' }">
-          <h2>Гайды</h2>
+          <h2>Р“Р°Р№РґС‹</h2>
           <div id="guidesList" ref="guidesListRef" class="scroll-list">
-            <div v-if="loading" class="post-card"><div class="post-bg">Загрузка...</div></div>
+            <div v-if="loading" class="post-card"><div class="post-bg">Р—Р°РіСЂСѓР·РєР°...</div></div>
             <div v-if="error" class="post-card"><div class="post-bg">{{ error }}</div></div>
 
             <div v-for="post in guides" :key="post.id" class="post-card" :data-id="post.id">
               <div class="post-bg">
-                <h3>{{ post.title || 'Без названия' }}</h3>
+                <h3>{{ post.title || 'Р‘РµР· РЅР°Р·РІР°РЅРёСЏ' }}</h3>
                 <p>{{ snippet(post.content) }}</p>
                 <div class="post-meta">{{ formatDateTime(post.created_at) }}</div>
                 <div v-if="post.tags && post.tags.length" class="tags">
                   <span v-for="tag in post.tags" :key="tag" class="tag">#{{ tag }}</span>
                 </div>
                 <button class="read-more" type="button" @click="openPost(post.id)">
-                  Читать далее…
+                  Р§РёС‚Р°С‚СЊ РґР°Р»РµРµвЂ¦
                 </button>
               </div>
             </div>
@@ -105,21 +105,21 @@
         </div>
 
         <div class="scroll-block" :class="{ active: !isMobile || activeTab === 'sources' }">
-          <h2>Источники</h2>
+          <h2>РСЃС‚РѕС‡РЅРёРєРё</h2>
           <div id="sourcesList" ref="sourcesListRef" class="scroll-list">
-            <div v-if="loading" class="post-card"><div class="post-bg">Загрузка...</div></div>
+            <div v-if="loading" class="post-card"><div class="post-bg">Р—Р°РіСЂСѓР·РєР°...</div></div>
             <div v-if="error" class="post-card"><div class="post-bg">{{ error }}</div></div>
 
             <div v-for="post in sources" :key="post.id" class="post-card" :data-id="post.id">
               <div class="post-bg">
-                <h3>{{ post.title || 'Без названия' }}</h3>
+                <h3>{{ post.title || 'Р‘РµР· РЅР°Р·РІР°РЅРёСЏ' }}</h3>
                 <p>{{ snippet(post.content) }}</p>
                 <div class="post-meta">{{ formatDateTime(post.created_at) }}</div>
                 <div v-if="post.tags && post.tags.length" class="tags">
                   <span v-for="tag in post.tags" :key="tag" class="tag">#{{ tag }}</span>
                 </div>
                 <button class="read-more" type="button" @click="openPost(post.id)">
-                  Читать далее…
+                  Р§РёС‚Р°С‚СЊ РґР°Р»РµРµвЂ¦
                 </button>
               </div>
             </div>
@@ -148,7 +148,7 @@ const router = useRouter();
 const config = useRuntimeConfig();
 
 useHead({
-  title: 'Cataclysm — Mercilium',
+  title: 'Cataclysm вЂ” Mercilium',
   htmlAttrs: { lang: 'ru' },
   bodyAttrs: { class: 'cataclysm' },
   meta: [{ name: 'viewport', content: 'width=device-width, initial-scale=1.0' }],
@@ -195,7 +195,7 @@ const parseTags = (raw?: string | string[]) => {
 const snippet = (html?: string) => {
   const text = (html || '').replace(/<[^>]*>/g, '').trim();
   if (!text) return '';
-  return text.length > 140 ? `${text.slice(0, 140)}…` : text;
+  return text.length > 140 ? `${text.slice(0, 140)}вЂ¦` : text;
 };
 
 const formatDateTime = (value?: string) => {
@@ -228,7 +228,7 @@ const loadTags = async () => {
     const data = await $fetch<{ ok: boolean; tags: string[] }>(`${config.public.apiBase}/public/tags`);
     tagsList.value = data.tags || [];
   } catch (err: any) {
-    console.error('Ошибка загрузки тегов', err);
+    console.error('РћС€РёР±РєР° Р·Р°РіСЂСѓР·РєРё С‚РµРіРѕРІ', err);
     tagsList.value = [];
   } finally {
     tagsLoading.value = false;
@@ -258,7 +258,7 @@ const fetchPosts = async () => {
 
     const url = `${config.public.apiBase}/public/posts${params.toString() ? `?${params.toString()}` : ''}`;
     const data = await $fetch<{ ok: boolean; guides: ApiPost[]; sources: ApiPost[]; error?: string }>(url);
-    if (!data.ok) throw new Error(data.error || 'Ошибка загрузки');
+    if (!data.ok) throw new Error(data.error || 'РћС€РёР±РєР° Р·Р°РіСЂСѓР·РєРё');
 
     guides.value = (data.guides || []).map((p) => ({
       ...p,
@@ -273,7 +273,7 @@ const fetchPosts = async () => {
     enableDragScroll(guidesListRef.value);
     enableDragScroll(sourcesListRef.value);
   } catch (err: any) {
-    error.value = err?.message || 'Ошибка загрузки';
+    error.value = err?.message || 'РћС€РёР±РєР° Р·Р°РіСЂСѓР·РєРё';
     guides.value = [];
     sources.value = [];
   } finally {
@@ -348,7 +348,18 @@ const setupStars = () => {
     }));
   };
 
-  const drawStars = () => {
+  const maxFPS = 30;
+  let lastFrame = 0;
+  let running = true;
+
+  const drawStars = (ts: number) => {
+    if (!running) return;
+    if (ts - lastFrame < 1000 / maxFPS) {
+      rafId = requestAnimationFrame(drawStars);
+      return;
+    }
+    lastFrame = ts;
+
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     stars.forEach((s) => {
       ctx.globalAlpha = s.a;
@@ -366,8 +377,14 @@ const setupStars = () => {
     rafId = requestAnimationFrame(drawStars);
   };
 
+  const onVisibility = () => {
+    running = !document.hidden;
+    if (running) rafId = requestAnimationFrame(drawStars);
+  };
+
   resizeHandler = createStars;
   window.addEventListener('resize', createStars);
+  document.addEventListener('visibilitychange', onVisibility);
   createStars();
   rafId = requestAnimationFrame(drawStars);
 };
@@ -397,8 +414,9 @@ onMounted(async () => {
 });
 
 onBeforeUnmount(() => {
+  document.removeEventListener('visibilitychange', onVisibility);
   if (searchTimer) window.clearTimeout(searchTimer);
   if (resizeHandler) window.removeEventListener('resize', resizeHandler);
   if (rafId) cancelAnimationFrame(rafId);
 });
-</script>
+</script>

@@ -24,9 +24,9 @@
     </div>
 
     <main class="lounge" :style="{ display: mainVisible ? 'flex' : 'none', transform: loungeTransform }">
-      <NuxtLink to="/" class="back-link">< Назад в Mercilium</NuxtLink>
+      <NuxtLink to="/" class="back-link">< РќР°Р·Р°Рґ РІ Mercilium</NuxtLink>
       <h1 class="title">Lounge</h1>
-      <p class="subtitle">Выберите способ настройки сети</p>
+      <p class="subtitle">Р’С‹Р±РµСЂРёС‚Рµ СЃРїРѕСЃРѕР± РЅР°СЃС‚СЂРѕР№РєРё СЃРµС‚Рё</p>
 
       <div class="cards">
         <div
@@ -36,9 +36,9 @@
           @click="navigate('/lounge/custom')"
         >
           <div class="card-bg" style="background-image: url('/lounge/img/make_site_bg.png');"></div>
-          <h2>Создание собственных офисов</h2>
+          <h2>РЎРѕР·РґР°РЅРёРµ СЃРѕР±СЃС‚РІРµРЅРЅС‹С… РѕС„РёСЃРѕРІ</h2>
           <p>
-            Поддержанный конструктор офисов для сетевой связи и упрощения/ускорения работы специалиста.
+            РџРѕРґРґРµСЂР¶Р°РЅРЅС‹Р№ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РѕС„РёСЃРѕРІ РґР»СЏ СЃРµС‚РµРІРѕР№ СЃРІСЏР·Рё Рё СѓРїСЂРѕС‰РµРЅРёСЏ/СѓСЃРєРѕСЂРµРЅРёСЏ СЂР°Р±РѕС‚С‹ СЃРїРµС†РёР°Р»РёСЃС‚Р°.
           </p>
         </div>
 
@@ -49,9 +49,9 @@
           @click="navigate('/lounge/auto')"
         >
           <div class="card-bg" style="background-image: url('/lounge/img/gen_site_bg.png');"></div>
-          <h2>Генерация автоматической сети</h2>
+          <h2>Р“РµРЅРµСЂР°С†РёСЏ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРѕР№ СЃРµС‚Рё</h2>
           <p>
-            Автоматическая развёртка офисов без участия пользователя. Требует проверки возможностей сервиса.
+            РђРІС‚РѕРјР°С‚РёС‡РµСЃРєР°СЏ СЂР°Р·РІС‘СЂС‚РєР° РѕС„РёСЃРѕРІ Р±РµР· СѓС‡Р°СЃС‚РёСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ. РўСЂРµР±СѓРµС‚ РїСЂРѕРІРµСЂРєРё РІРѕР·РјРѕР¶РЅРѕСЃС‚РµР№ СЃРµСЂРІРёСЃР°.
           </p>
         </div>
       </div>
@@ -66,7 +66,7 @@ import { useRouter } from 'vue-router';
 const router = useRouter();
 
 useHead({
-  title: 'Lounge — Mercilium Network Generator',
+  title: 'Lounge вЂ” Mercilium Network Generator',
   htmlAttrs: { lang: 'ru' },
   meta: [{ name: 'viewport', content: 'width=device-width, initial-scale=1.0' }],
   link: [
@@ -137,7 +137,18 @@ const setupStars = () => {
     }
   };
 
-  const animate = () => {
+  const maxFPS = 30;
+  let lastFrame = 0;
+  let running = true;
+
+  const animate = (ts: number) => {
+    if (!running) return;
+    if (ts - lastFrame < 1000 / maxFPS) {
+      rafId = requestAnimationFrame(animate);
+      return;
+    }
+    lastFrame = ts;
+
     ctx.fillStyle = 'rgba(5, 0, 20, 0.9)';
     ctx.fillRect(0, 0, w, h);
     pulse += 0.02;
@@ -175,8 +186,14 @@ const setupStars = () => {
     rafId = requestAnimationFrame(animate);
   };
 
+  const onVisibility = () => {
+    running = !document.hidden;
+    if (running) rafId = requestAnimationFrame(animate);
+  };
+
   resizeHandler = resize;
   window.addEventListener('resize', resize);
+  document.addEventListener('visibilitychange', onVisibility);
   resize();
   rafId = requestAnimationFrame(animate);
 };
@@ -193,7 +210,8 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
+  document.removeEventListener('visibilitychange', onVisibility);
   if (resizeHandler) window.removeEventListener('resize', resizeHandler);
   if (rafId) cancelAnimationFrame(rafId);
 });
-</script>
+</script>
