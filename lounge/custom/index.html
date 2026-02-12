@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Lounge — Планировка офиса</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./assets/planner.css" />
+</head>
+<body>
+  <!-- Фоновая сцена со звёздами -->
+  <canvas id="scene"></canvas>
+
+  <header class="topbar">
+    <a class="back" href="/lounge/">&larr; Назад в Lounge</a>
+    <h1>Планировка офиса</h1>
+    <div class="actions">
+      <button id="btnCreate" class="btn violet">+ Создать офис</button>
+      <button id="btnImport" class="btn">Импортировать</button>
+      <button id="btnExport" class="btn">Экспортировать</button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <!-- Левый блок -->
+    <section class="left">
+      <div id="offices" class="office-list empty">
+        <div class="empty-note">
+          <div class="empty-ill"></div>
+          <h3>Офисы ещё не созданы</h3>
+          <p>Нажмите «Создать офис», чтобы добавить первый.</p>
+        </div>
+      </div>
+      <h3 class="section-title">Туннели / Внешние связи</h3>
+        <div id="linksList" class="links-list empty">
+          <div class="empty-note small">
+            <p>Пока нет внешних связей. Открой карточку офиса → «Входы/Выходы».</p>
+          </div>
+        </div>
+
+    </section>
+
+    <!-- Правый блок -->
+    <aside class="right">
+      <div id="details" class="details placeholder">
+        <div class="hint">
+          <h3>Выберите офис слева</h3>
+          <p>Здесь появится детальная информация, VLAN и «Входы/Выходы».</p>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Модалка: создание/редактирование офиса -->
+  <div id="modalOffice" class="modal" aria-hidden="true">
+    <div class="modal__dialog">
+      <button class="modal__close" data-close>&times;</button>
+      <h2 class="modal__title" id="officeModalTitle">Создать офис</h2>
+
+      <div class="form">
+        <label class="field">
+          <span>Название офиса</span>
+          <input id="inpName" type="text" placeholder="Напр. Главный офис" />
+        </label>
+
+        <label class="field with-help">
+          <span>Подсеть (CIDR)</span>
+          <div class="inline">
+            <input id="inpCIDR" type="text" placeholder="Напр. 192.168.10.0/24" />
+            <button class="help" id="btnCidrHelp" type="button">?</button>
+          </div>
+        </label>
+
+        <div class="vlans">
+          <div class="vlans__head">
+            <span>VLAN (VID + роль)</span>
+            <button id="btnAddVlan" type="button" class="btn mini">+ VLAN</button>
+          </div>
+          <div id="vlanRows" class="vlans__rows"></div>
+        </div>
+
+        <div class="modal__footer">
+          <button id="btnSaveOffice" class="btn violet">Построить офис</button>
+          <button class="btn ghost" data-close>Отмена</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модалка: Входы/Выходы -->
+  <div id="modalIO" class="modal" aria-hidden="true">
+    <div class="modal__dialog wide">
+      <button class="modal__close" data-close>&times;</button>
+      <h2 class="modal__title">Входы / Выходы</h2>
+
+      <div class="io-grid">
+        <div class="io-card io-gre" data-type="GRE">
+          <div class="io-dot" style="--c:#ff8c3a"></div>
+          <h3>GRE</h3>
+          <p>Туннель между офисами для сетевого соединения.</p>
+        </div>
+        <div class="io-card io-isp" data-type="ISP">
+          <div class="io-dot" style="--c:#32cd32"></div>
+          <h3>ISP</h3>
+          <p>Внешняя машина с прямым доступом в интернет.</p>
+        </div>
+        <div class="io-card io-emach" data-type="EMach">
+          <div class="io-dot" style="--c:#3aa0ff"></div>
+          <h3>EMach</h3>
+          <p>Внешняя машина без прямого доступа (нужен отдельный офис).</p>
+        </div>
+        <div class="io-card io-ipip" data-type="IPIP">
+          <div class="io-dot" style="--c:#9aa0aa"></div>
+          <h3>IpIp</h3>
+          <p>IPIP-туннель между двумя офисами.</p>
+        </div>
+      </div>
+
+      <div class="io-footer">
+        <button class="btn ghost" data-close>Закрыть</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Модалка: Сообщение (нет ВМ) -->
+  <div id="modalMsg" class="modal" aria-hidden="true">
+    <div class="modal__dialog">
+      <button class="modal__close" data-close>&times;</button>
+      <h2 class="modal__title">Требуются виртуальные машины</h2>
+      <p class="muted">
+        Внутри офиса нет виртуальных машин для подключения извне. Создайте пару ВМ.
+      </p>
+      <div class="modal__footer">
+        <button class="btn violet" data-close>Вернуться</button>
+      </div>
+    </div>
+  </div>
+<!-- Настройка GRE/IPIP: source/destination -->
+<div id="modalTunnelBind" class="modal" aria-hidden="true">
+  <div class="modal__dialog">
+    <button class="modal__close" data-close>&times;</button>
+    <h2 class="modal__title">Привязка интерфейсов (туннель)</h2>
+
+    <div class="form">
+      <h4>Сторона A</h4>
+      <label class="field">
+        <span>Виртуальная машина</span>
+        <select id="tunA_vm"></select>
+      </label>
+      <label class="field">
+        <span>Интерфейс</span>
+        <select id="tunA_if"></select>
+      </label>
+
+      <h4>Сторона B</h4>
+      <label class="field">
+        <span>Виртуальная машина</span>
+        <select id="tunB_vm"></select>
+      </label>
+      <label class="field">
+        <span>Интерфейс</span>
+        <select id="tunB_if"></select>
+      </label>
+
+      <div class="modal__footer">
+        <button id="btnSaveTunnelBind" class="btn violet">Сохранить</button>
+        <button class="btn ghost" data-close>Отмена</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Настройка подключений ISP к офисам -->
+<div id="modalISPBind" class="modal" aria-hidden="true">
+  <div class="modal__dialog wide">
+    <button class="modal__close" data-close>&times;</button>
+    <h2 class="modal__title">Подключения ISP к офисам</h2>
+
+    <div class="form">
+      <div id="ispPeersList" class="vlan-list"></div>
+
+      <div class="actions-line" style="margin-top:10px">
+        <button id="btnAddIspPeer" class="btn">+ Добавить офис</button>
+        <button id="btnSaveIspBind" class="btn violet" style="margin-left:auto">Сохранить</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EMach конфиг -->
+<div id="modalEM" class="modal" aria-hidden="true">
+  <div class="modal__dialog">
+    <button class="modal__close" data-close>&times;</button>
+    <h2 class="modal__title">Добавить внешнюю машину (EMach)</h2>
+    <div class="form">
+  <label class="field">
+    <span>Название</span>
+    <input id="emName" type="text" placeholder="Напр. Внешний офис-Х">
+  </label>
+
+  <!-- NEW: выбор дистрибутива -->
+  <label class="field">
+    <span>Дистрибутив</span>
+    <select id="emDistro">
+      <option value="ecorouter">EcoRouter</option>
+      <option value="altserver">ALT Server</option>
+      <option value="debian">Debian</option>
+    </select>
+  </label>
+
+  <div class="modal__footer">
+    <button id="btnCreateEM" class="btn violet">Добавить</button>
+    <button class="btn ghost" data-close>Отмена</button>
+  </div>
+</div>
+
+  </div>
+</div>
+<!-- Модалка просмотра связи -->
+<div id="modalLinkInfo" class="modal" aria-hidden="true">
+  <div class="modal__dialog">
+    <button class="modal__close" data-close>&times;</button>
+    <h2 class="modal__title" id="linkInfoTitle">Информация о связи</h2>
+
+    <div class="form" id="linkInfoContent">
+      <!-- сюда JS вставит подробности -->
+    </div>
+
+    <div class="modal__footer">
+      <button id="btnDeleteLink" class="btn ghost">Удалить связь</button>
+      <button class="btn violet" data-close>Закрыть</button>
+    </div>
+  </div>
+</div>
+<!-- Результат операции -->
+<div id="modalResult" class="modal" aria-hidden="true">
+  <div class="modal__dialog">
+    <button class="modal__close" data-close>&times;</button>
+    <h2 class="modal__title">
+      <span id="resultIcon"></span>
+      <span id="resultTitle"></span>
+    </h2>
+    <p id="resultText" class="muted"></p>
+    <div class="modal__footer">
+      <button class="btn violet" data-close>Ок</button>
+    </div>
+  </div>
+</div>
+
+
+  <!-- Office View Overlay -->
+  <div id="officeView" class="office-view hidden">
+    <!-- dynamic content injected by JS -->
+  </div>
+
+  <script src="./assets/planner.js"></script>
+</body>
+</html>

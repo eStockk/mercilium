@@ -1,0 +1,4 @@
+Options -Indexes
+RewriteEngine On
+# Serve index.php by default
+DirectoryIndex login.php

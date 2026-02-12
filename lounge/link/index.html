@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Туннель — Mercilium Lounge</title>
+
+  <!-- Lounge / Tunnel styles -->
+  <link rel="stylesheet" href="link.css">
+
+  <!-- D3.js -->
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body data-page="tunnel">
+
+<div class="page">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar__left">
+      <button id="btnBack" class="btn ghost mini">← Вернуться</button>
+      <div class="title-wrap">
+        <h1 id="pageTitle">Туннель</h1>
+        <div id="pageSubtitle" class="subtitle">interactive link board</div>
+      </div>
+    </div>
+
+    <div class="topbar__right">
+      <div class="top-actions">
+        <button id="btnFitView" class="btn ghost mini" title="Уместить в экран">Fit</button>
+        <button id="btnRecenter" class="btn ghost mini" title="Центрировать">Center</button>
+        <button id="btnDelete" class="btn danger mini">Удалить</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+
+    <!-- LEFT SIDEBAR -->
+    <aside class="sidebar">
+
+      <!-- Addresses panel -->
+      <section class="card">
+        <div class="card__head">
+          <h3>Адреса tunnel.0</h3>
+          <div class="card__sub">изменения применяются к обеим сторонам</div>
+        </div>
+
+        <label class="fld">
+          <span>IP стороны A</span>
+          <input id="ipA" type="text" placeholder="10.0.0.1">
+        </label>
+
+        <label class="fld">
+          <span>IP стороны B</span>
+          <input id="ipB" type="text" placeholder="10.0.0.2">
+        </label>
+
+        <label class="fld">
+          <span>Подсеть (CIDR)</span>
+          <input id="cidr" type="text" placeholder="10.0.0.0/30">
+        </label>
+
+        <button id="btnSaveAddrs" class="btn violet full">Сохранить</button>
+      </section>
+
+      <!-- Composition panel -->
+      
+
+      <!-- Legend -->
+      <section class="card legend">
+        <h3>Легенда</h3>
+        <div class="legend__item office">Офис</div>
+        <div class="legend__item isp">ISP</div>
+        <div class="legend__item emach">Emach</div>
+        <div class="legend__item vm">VM внутри офиса</div>
+      </section>
+
+    </aside>
+
+    <!-- BOARD -->
+    <main class="board-area">
+      <div class="board-shell">
+        <canvas id="starsBg" class="stars-canvas"></canvas>
+        <!-- D3 renders into this SVG -->
+        <svg id="board" class="board-svg"></svg>
+
+        <!-- board mini HUD -->
+        <div class="hud">
+          <button id="zoomIn" class="btn ghost mini" title="Zoom in">+</button>
+          <button id="zoomOut" class="btn ghost mini" title="Zoom out">−</button>
+        </div>
+      </div>
+    </main>
+
+  </div>
+
+</div>
+<!-- Context menu -->
+
+<!-- Drag ghost -->
+<div id="dragGhost" class="drag-ghost hidden"></div>
+
+<script src="link.js"></script>
+</body>
+</html>

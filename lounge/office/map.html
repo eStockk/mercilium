@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Карта офиса</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;900&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="./map.css">
+
+  <!-- Cytoscape core -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/cytoscape/3.33.1/cytoscape.min.js"></script>
+</head>
+<body>
+  <!-- Cosmic background -->
+  <canvas id="spaceCanvas" aria-hidden="true"></canvas>
+  <div class="glow" aria-hidden="true"></div>
+
+  <!-- Top bar -->
+  <header class="topbar">
+    <div class="topbar__left">
+      <a class="topbar__back" href="./index.html">← Назад</a>
+      <div class="topbar__title" id="officeTitle">Карта офиса</div>
+    </div>
+    <div class="topbar__right">
+      <div class="badge">Topology view</div>
+    </div>
+  </header>
+
+  <!-- Cytoscape container -->
+  <main id="officeGraph" class="office-graph" role="main"></main>
+
+  <!-- Map module (Cytoscape adapter) -->
+  <script type="module" src="./office-map.js"></script>
+
+  <script type="module">
+    import { initOfficeMap, setOfficeData, on } from "./office-map.js";
+
+    const STORE_KEY = "lounge_offices_v1";
+    const container = document.getElementById("officeGraph");
+
+    /* -------------------------------------------------------------
+       COSMIC BACKGROUND
+    ------------------------------------------------------------- */
+    const cvs = document.getElementById("spaceCanvas");
+    const ctx = cvs.getContext("2d");
+
+    function resizeCanvas(){
+      cvs.width = window.innerWidth;
+      cvs.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
+
+    const stars = [];
+    const STAR_COUNT = 220;
+    for (let i = 0; i < STAR_COUNT; i++){
+      stars.push({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        r: 0.4 + Math.random() * 1.6,
+        s: 0.001 + Math.random() * 0.003,
+        t: Math.random() * Math.PI * 2,
+        tw: Math.random() * 0.6 + 0.2
+      });
+    }
+
+    function drawCosmos(){
+      ctx.clearRect(0,0,cvs.width,cvs.height);
+
+      // Stars + subtle explosions
+      for (const s of stars){
+        s.t += s.s;
+        const pulse = 0.5 + Math.sin(s.t) * 0.5;
+
+        ctx.beginPath();
+        ctx.fillStyle = `rgba(${170 + pulse*60},${190 + pulse*50},255,${0.18 + pulse*0.25})`;
+        ctx.arc(s.x, s.y, s.r + pulse*1.2, 0, Math.PI*2);
+        ctx.fill();
+
+        if (Math.random() < 0.0006){
+          ctx.beginPath();
+          ctx.strokeStyle = "rgba(140,190,255,0.25)";
+          ctx.lineWidth = 1.2;
+          ctx.arc(s.x, s.y, 18 + Math.random()*25, 0, Math.PI*2);
+          ctx.stroke();
+        }
+      }
+
+      // Digital constellations
+      for (let i=0; i<32; i++){
+        const a = stars[(Math.random()*stars.length)|0];
+        const b = stars[(Math.random()*stars.length)|0];
+
+        ctx.beginPath();
+        ctx.strokeStyle = "rgba(120,170,255,0.10)";
+        ctx.lineWidth = 1;
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(b.x, b.y);
+        ctx.stroke();
+
+        const midX = (a.x+b.x)/2;
+        const midY = (a.y+b.y)/2;
+        ctx.fillStyle = "rgba(170,220,255,0.12)";
+        ctx.font = "10px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace";
+        ctx.fillText(String((Math.random()*999)|0).padStart(3,'0'), midX, midY);
+      }
+
+      requestAnimationFrame(drawCosmos);
+    }
+    drawCosmos();
+
+
+    /* -------------------------------------------------------------
+       LOAD OFFICE DATA
+    ------------------------------------------------------------- */
+    function loadState(){
+      try { return JSON.parse(localStorage.getItem(STORE_KEY)) || { offices: [] }; }
+      catch { return { offices: [] }; }
+    }
+
+    function getOfficeFromUrlOrFallback(){
+      const params = new URLSearchParams(location.search);
+      const officeId = params.get("id");
+      const state = loadState();
+      let office = state.offices.find(o => String(o.id) === String(officeId));
+      if (!office) office = state.offices[0];
+      return office;
+    }
+
+    /* -------------------------------------------------------------
+       ICON SET (YOUR FILES)
+    ------------------------------------------------------------- */
+    const ICONS = {
+      switch:   { icon: "../custom/img/switch.svg"  },
+      router:   { icon: "../custom/img/router.svg"  },
+      server:   { icon: "../custom/img/server.svg"  },
+      firewall: { icon: "../custom/img/firewall.svg"},
+      client:   { icon: "../custom/img/client.svg"  },
+      isp:      { icon: "../custom/img/isp.png"     },
+      emach:    { icon: "../custom/img/Emach.png"   }
+    };
+    const DEFAULT_ICON = ICONS.server.icon;
+
+
+    /* -------------------------------------------------------------
+       OFFICE → CYTOSCAPE MODEL TRANSFORM
+    ------------------------------------------------------------- */
+
+    function officeToCytoscapeModel(office){
+      if (!office) return { rooms: [], nodes: [], links: [], view: { fit: true } };
+
+      document.getElementById("officeTitle").textContent =
+        "Карта офиса — " + (office.name || office.id);
+
+      const nodes = [];
+      const links = [];
+
+      // CENTRAL CHAIN: Router -> Firewall -> Switch
+      const centerX = 520;
+      const routerVM = findVmByKind(office, "router");
+      const fwVM     = findVmByKind(office, "firewall");
+      const swVM     = findVmByKind(office, "switch");
+
+      const chain = [];
+
+      if (routerVM){
+        const id = vmId(routerVM);
+        chain.push(id);
+        nodes.push(makeDeviceNode(routerVM, { id, kind: "router", x: centerX, y: 90 }));
+      }
+      if (fwVM){
+        const id = vmId(fwVM);
+        chain.push(id);
+        nodes.push(makeDeviceNode(fwVM, { id, kind: "firewall", x: centerX, y: 220 }));
+      }
+      if (swVM){
+        const id = vmId(swVM);
+        chain.push(id);
+        nodes.push(makeDeviceNode(swVM, { id, kind: "switch", x: centerX, y: 350 }));
+      }
+
+      for (let i=0; i<chain.length-1; i++){
+        links.push({ source: chain[i], target: chain[i+1], label: "" });
+      }
+
+      const coreId = chain[chain.length-1];
+
+      // SERVERS LEFT SIDE
+      const vms = office.vms || [];
+      const servers = vms.filter(vm => {
+        const k = vmKind(vm);
+        return k !== "router" && k !== "firewall" && k !== "switch" && k !== "client";
+      });
+
+      const startY = 210;
+      const gapY = 105;
+      servers.forEach((vm, i)=>{
+        const id = vmId(vm);
+        nodes.push(makeDeviceNode(vm, {
+          id, kind: "server", x: 220, y: startY + i * gapY
+        }));
+        if (coreId) links.push({ source: id, target: coreId, label: "" });
+      });
+
+      // CLIENTS BOTTOM-RIGHT
+      const clients = vms.filter(vm => vmKind(vm) === "client");
+      const clientY = 500;
+      const clientStartX = 430;
+      const clientGapX = 220;
+
+      clients.forEach((vm, i)=>{
+        const id = vmId(vm);
+        nodes.push(makeDeviceNode(vm, {
+          id, kind: "client", x: clientStartX + i * clientGapX, y: clientY
+        }));
+        if (coreId) links.push({ source: id, target: coreId, label: "" });
+      });
+
+      // ---------------------------------------------------------------------
+      // INTERFACES (STATIC / DYNAMIC / VLAN-FLOATING)
+      // ---------------------------------------------------------------------
+
+      const deviceNodes = nodes.filter(n => n.classes.includes("device"));
+      deviceNodes.forEach(dev => {
+        const vm = dev.data._vm;
+        const ifaces = (vm && vm.ifaces) ? vm.ifaces : [];
+        if (!ifaces.length) return;
+
+        const bySide = { top:[], right:[], bottom:[], left:[], floating:[] };
+
+        ifaces.forEach(iface => {
+          const side = decideSide(vm, iface);
+          bySide[side].push(iface);
+        });
+
+        placePorts(dev, bySide.top, "top");
+        placePorts(dev, bySide.right, "right");
+        placePorts(dev, bySide.bottom, "bottom");
+        placePorts(dev, bySide.left, "left");
+
+        makeFloating(dev, bySide.floating);
+
+        ["top","right","bottom","left"].forEach(side=>{
+          if (bySide[side].length > 2){
+            makeFloating(dev, bySide[side].slice(2));
+          }
+        });
+      });
+
+
+      return { rooms: [], nodes, links, view: { fit: true } };
+
+
+      /* --------------------------- helpers inside --------------------------- */
+
+      function placePorts(dev, ifaces, side){
+        if (!ifaces || ifaces.length===0) return;
+
+        const x0 = dev.position.x;
+        const y0 = dev.position.y;
+        const w  = dev.data.w;
+        const h  = dev.data.h;
+
+        const step = 28;
+
+        ifaces.slice(0,2).forEach((iface, idx)=>{
+          const pid = `${dev.data.id}::${ifaceId(iface)}`;
+          const label = shortIfaceLabel(iface);
+
+          let px=x0, py=y0;
+
+          if (side === "top"){
+            px = x0 - w/2 + 55 + idx*step;
+            py = y0 - h/2 - 18;
+          }
+          if (side === "bottom"){
+            px = x0 - w/2 + 55 + idx*step;
+            py = y0 + h/2 + 18;
+          }
+          if (side === "left"){
+            px = x0 - w/2 - 44;
+            py = y0 - h/2 + 28 + idx*step;
+          }
+          if (side === "right"){
+            px = x0 + w/2 + 44;
+            py = y0 - h/2 + 28 + idx*step;
+          }
+
+          nodes.push({
+            data: { id: pid, label, kind: "port" },
+            position: { x: px, y: py },
+            classes: "port " + ifaceClass(iface)
+          });
+
+          links.push({ source: pid, target: dev.data.id, label: "" });
+        });
+      }
+
+      function makeFloating(dev, ifaces){
+        if (!ifaces || ifaces.length===0) return;
+
+        const x0 = dev.position.x;
+        const y0 = dev.position.y;
+        const w  = dev.data.w;
+
+        ifaces.forEach((iface, i)=>{
+          const fid = `${dev.data.id}::float::${ifaceId(iface)}::${i}`;
+          const label = fullIfaceLabel(iface);
+
+          nodes.push({
+            data: { id: fid, label, kind: "floating" },
+            position: { x: x0 + w/2 + 182, y: y0 - 30 + i*50 },
+            classes: "floating port-vlan"
+          });
+
+          links.push({ source: fid, target: dev.data.id, label: "" });
+        });
+      }
+    }
+
+
+    /* -------------------------------------------------------------
+       GLOBAL HELPERS
+    ------------------------------------------------------------- */
+
+    function vmId(vm){
+      return String(vm.id ?? vm.hostname ?? vm.name);
+    }
+
+    function vmKind(vm){
+      const t = String(vm.type || vm.kind || "").toLowerCase();
+      if (t.includes("router")) return "router";
+      if (t.includes("firewall") || t.includes("fw")) return "firewall";
+      if (t.includes("switch") || t.includes("sw")) return "switch";
+      if (t.includes("client") || t.includes("pc") || t.includes("admin")) return "client";
+      return "server";
+    }
+
+    function findVmByKind(office, kind){
+      const vms = office.vms || [];
+      return vms.find(v => vmKind(v) === kind) || null;
+    }
+
+    function vmInfoText(vm){
+  if (!vm || typeof vm !== "object") return "";
+
+  const lines = [];
+  for (const key of Object.keys(vm)){
+    if (key === "ifaces") continue;
+    if (key === "id") continue;
+    if (typeof vm[key] === "object") {
+      try { lines.push(`${key}: ${JSON.stringify(vm[key])}`); }
+      catch { lines.push(`${key}: [object]`); }
+      continue;
+    }
+    lines.push(`${key}: ${vm[key]}`);
+  }
+  return lines.join("\n");
+}
+
+
+    function makeDeviceNode(vm, { id, kind, x, y }){
+      const icon = (ICONS[kind] && ICONS[kind].icon) || DEFAULT_ICON;
+      return {
+        data: {
+          id,
+          infoText: vmInfoText(vm),
+          kind,
+          icon,
+          w: 290,
+          h: 90,
+          _vm: vm
+        },
+        position: { x, y },
+        classes: "device"
+      };
+    }
+
+    function ifaceId(iface){
+      return iface.name || iface.id || JSON.stringify(iface);
+    }
+
+    function shortIfaceLabel(iface){
+      const name = iface.name || "if";
+      const vlan = iface.vlanId != null ? `v${iface.vlanId}` : "";
+      return vlan ? `${name} ${vlan}` : name;
+    }
+
+    function fullIfaceLabel(iface){
+      const parts = [];
+      if (iface.name) parts.push(iface.name);
+      if (iface.vlanId != null) parts.push(`VLAN ${iface.vlanId}`);
+      if (iface.ip) parts.push(`IP ${iface.ip}`);
+      if (iface.mode) parts.push(String(iface.mode));
+      if (iface.dynamic != null) parts.push(iface.dynamic ? "dynamic" : "static");
+      return parts.join(" • ");
+    }
+
+    function decideSide(vm, iface){
+      if (iface.vlanId != null) return "floating";
+      const n = String(iface.name || "").toLowerCase();
+      if (n.includes("wan") || n.includes("uplink") || n.includes("isp")) return "top";
+      if (n.includes("eth0") || n.includes("en0")) return "right";
+      if (n.includes("eth1") || n.includes("en1")) return "left";
+      return "right";
+    }
+
+    function ifaceClass(iface){
+      if (iface.vlanId != null) return "port-vlan";
+      if (iface.mode === "static") return "port-static";
+      if (iface.mode === "dhcp" || iface.mode === "dynamic") return "port-dynamic";
+      return "port-static";
+    }
+
+    /* -------------------------------------------------------------
+       INIT MAP
+    ------------------------------------------------------------- */
+
+    initOfficeMap(container);
+
+    const office = getOfficeFromUrlOrFallback();
+    const model  = officeToCytoscapeModel(office);
+    setOfficeData(model);
+
+    on("select", (evt) => console.log("selected:", evt));
+
+  </script>
+</body>
+</html>

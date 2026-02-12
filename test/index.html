@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Кто ты в средневековом королевстве?</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="page">
+    <header class="header">
+        <h1 class="title">Тест: кто ты в королевстве?</h1>
+        <p class="subtitle">
+            Узнай, к какой роли ты склоняешься: владыка замка, хранитель клинка, 
+            хранитель знаний, голос народа, тень за троном или тот, кто смеётся громче всех.
+        </p>
+    </header>
+
+    <main class="card">
+        <div id="quiz-screen">
+            <div class="progress-wrap">
+                <div class="progress-bar" id="progress-bar"></div>
+            </div>
+
+            <div id="question-counter" class="question-counter"></div>
+            <h2 id="question-text" class="question-text"></h2>
+
+            <ul id="answers-list" class="answers-list"></ul>
+
+            <button id="next-btn" class="btn btn-next" disabled>Дальше</button>
+        </div>
+
+        <div id="result-screen" class="hidden">
+            <h2 class="result-title">Твои королевские пропорции</h2>
+            <div class="result-main">
+                <div class="result-image-wrap">
+                    <img id="result-image" src="" alt="Твоя роль" class="result-image">
+                </div>
+                <div class="result-main-text">
+                    <h3 id="result-role" class="result-role"></h3>
+                    <p id="result-description" class="result-description"></p>
+                </div>
+            </div>
+
+            <h3 class="result-subtitle">Расклад по ролям</h3>
+            <ul id="result-list" class="result-list"></ul>
+
+            <button id="restart-btn" class="btn btn-restart">Пройти ещё раз</button>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>Выбирай честно то, что ближе — не угадывай роль, а слушай себя.</p>
+    </footer>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>

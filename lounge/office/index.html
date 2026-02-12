@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>Офис — Mercilium Lounge</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./office.css" />
+</head>
+<body>
+  <canvas id="bg"></canvas>
+
+  <header class="topbar">
+    <a class="back" href="/lounge/custom">&larr; Назад к офисам</a>
+    <h1 id="officeTitle">Офис</h1>
+    <div class="top-actions">
+      <button id="btnToggleOnline" class="btn mini">offline</button>
+    </div>
+  </header>
+
+  <main class="layout">
+    <!-- ЛЕВАЯ ИНФО-ПАНЕЛЬ -->
+    <aside class="left">
+      <div class="card">
+        <div class="kv">
+          <span>Название:</span><b id="infoName">—</b>
+        </div>
+        <div class="kv">
+          <span>CIDR:</span><b id="infoCIDR">—</b>
+        </div>
+
+        <div class="kv">
+          <span>Статус:</span>
+          <b id="infoOnline" class="pill pill-off">offline</b>
+        </div>
+        <button id="btnEditVlan" class="btn mini" style="margin-top:6px">Настроить VLAN</button>
+
+        <div class="kv">
+          <span>Стабильность:</span>
+          <b id="infoStable" class="warn">Проверка…</b>
+        </div>
+
+        <div class="kv">
+          <span>VLAN:</span><b id="infoVlanCnt">0</b>
+        </div>
+
+        <div class="preview">
+          <img id="officeImg" alt="Иллюстрация офиса" />
+        </div>
+      </div>
+    </aside>
+
+    <!-- ПРАВЫЙ ТЕРМИНАЛ -->
+    <section class="right">
+      <!-- Панель действий (над консолью) -->
+      <div class="console-actions">
+        <button id="btnAddVM" class="btn violet">ADD_VM</button>
+        <button id="btnMap" class="btn ghost">Карта офиса</button>
+        <script>
+          // Открыть карту офиса на отдельной странице
+          btnMap.addEventListener("click", () => {
+            // office.id уже определён из URL
+            window.location.href = `./map.html?id=${encodeURIComponent(office.id)}`;
+          });
+        </script>
+
+      </div>
+
+      <div class="terminal" id="termBox">
+        <div class="term-header">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="title">Терминал офиса</span>
+        </div>
+        <div class="term-body" id="termBody" tabindex="-1" aria-live="polite"></div>
+
+        <div class="term-input">
+          <span class="prompt" id="termPrompt">$</span>
+          <input id="cmd" type="text" autocomplete="off" spellcheck="false" />
+        </div>
+      </div>
+    </section>
+  </main>
+
+  
+  <div id="modalVlan" class="modal" aria-hidden="true">
+  <div class="modal__dialog">
+    <button class="modal__close" data-close>&times;</button>
+    <h2 class="modal__title">VLAN офиса</h2>
+    <div class="form">
+      <div class="vlans__head">
+        <span>VID + роль + вместимость</span>
+        <button id="btnAddVlanOffice" type="button" class="btn mini">+ VLAN</button>
+      </div>
+      <div id="vlanRowsOffice" class="vlans__rows"></div>
+      <div class="modal__footer">
+        <button id="btnSaveVlanOffice" class="btn violet">Сохранить</button>
+        <button class="btn ghost" data-close>Отмена</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <script src="./office.js"></script>
+  <script src="./vm-create-graphic.js"></script>
+</body>
+</html>

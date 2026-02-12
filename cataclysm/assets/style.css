@@ -1,0 +1,1006 @@
+/* --- Cataclysm layout --- */
+#cata-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 100vh;
+  padding: 0 8%;
+  position: relative;
+  z-index: 10;
+}
+
+.left {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
+a {
+  text-decoration: none;
+}
+
+#cataclysm-logo {
+  font-size: 80px;
+  font-weight: 800;
+  color: var(--text);
+  transition: color 0.3s ease, border-bottom 0.3s ease;
+  border-bottom: 3px solid transparent;
+  position: relative;
+}
+#cataclysm-logo:hover {
+  color: var(--violet);
+  border-bottom: 3px solid var(--violet);
+}
+
+#mercilium-link {
+  display: block;
+  font-size: 24px;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  color: var(--blue);
+  text-align: center;
+}
+#cataclysm-logo:hover #mercilium-link {
+  opacity: 1;
+}
+
+/* --- Правая часть с лентами --- */
+.right {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 65%;
+  height: 80vh;
+  gap: 30px;
+}
+
+/* --- Ленты (гайды и источники) --- */
+.scroll-block {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  overflow: hidden;
+  padding: 10px;
+  border-radius: 15px;
+  transition: box-shadow 0.3s ease;
+}
+
+.scroll-block h2 {
+  text-align: center;
+  margin-bottom: 10px;
+}
+.scroll-block:active {
+  cursor: grabbing;
+  box-shadow: inset 0 0 25px rgba(255,255,255,0.08);
+}
+
+/* --- Список постов --- */
+.scroll-list {
+  height: 70vh;
+  overflow-y: scroll;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  scroll-behavior: smooth;
+  overscroll-behavior: contain;
+}
+.scroll-list::-webkit-scrollbar {
+  display: none;
+}
+
+/* --- Карточки постов --- */
+.post-card {
+  background: rgba(255,255,255,0.05);
+  padding: 15px;
+  border-radius: 10px;
+  margin: 12px auto;
+  width: 90%;
+  transition:
+    transform 0.35s ease,
+    box-shadow 0.6s ease,
+    background 0.6s ease;
+  box-shadow: 0 0 6px rgba(255,255,255,0.05);
+  overflow: hidden;
+}
+.post-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 0 30px rgba(148,0,211,0.4);
+  background: rgba(255,255,255,0.1);
+}
+.post-card h3 {
+  margin-top: 0;
+  font-size: 20px;
+  color: var(--text);
+}
+.post-card p {
+  font-size: 15px;
+  opacity: 0.9;
+  padding: 5px 0 10px;
+}
+
+/* --- Кнопка "Читать далее" --- */
+.read-more {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 6px 14px;
+  border: 1px solid var(--violet);
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.read-more:hover {
+  background: var(--violet);
+  box-shadow: 0 0 14px rgba(148,0,211,0.6);
+}
+
+/* --- Эффект лёгкой инерции --- */
+.scroll-list {
+  scroll-behavior: smooth;
+  scroll-snap-type: y proximity;
+  transition: scroll 0.8s ease-out;
+}
+
+/* === Тэги под постами (главная и внутренняя страница) === */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0 12px;
+}
+
+.tag {
+  background: rgba(148, 0, 211, 0.15);
+  border: 1px solid rgba(148, 0, 211, 0.4);
+  color: var(--text);
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  text-shadow: 0 0 6px rgba(148, 0, 211, 0.5);
+}
+.tag:hover {
+  background: var(--violet);
+  color: #fff;
+  box-shadow: 0 0 12px rgba(148, 0, 211, 0.7);
+}
+
+/* === Блок источников внутри страницы поста === */
+.post-sources {
+  margin-top: 30px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+.post-sources h3 {
+  font-size: 20px;
+  color: var(--violet);
+  margin-bottom: 10px;
+}
+.post-sources ul {
+  list-style: none;
+  padding-left: 0;
+}
+.post-sources li {
+  margin: 4px 0;
+  color: #d6c3ff;
+  transition: color 0.3s ease;
+}
+.post-sources li:hover {
+  color: #fff;
+}
+
+/* === ПОИСКОВАЯ ПАНЕЛЬ ПОД CATACLYSM === */
+.search-section {
+  margin-top: 50px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  align-items: center;
+  gap: 10px;
+}
+
+.search-bar {
+  display: flex;
+  gap: 8px;
+  width: 100%;
+  align-items: center;
+}
+
+#searchInput {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid var(--violet);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--text);
+  outline: none;
+  transition: 0.3s;
+}
+#searchInput:focus {
+  box-shadow: 0 0 8px rgba(148, 0, 211, 0.5);
+}
+
+#tagsBtn {
+  padding: 10px 16px;
+  border: 1px solid var(--violet);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+#tagsBtn:hover {
+  background: var(--violet);
+  box-shadow: 0 0 10px rgba(148, 0, 211, 0.4);
+}
+
+/* === СПИСОК ТЭГОВ === */
+.tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  max-width: 380px;
+}
+
+.tag-option {
+  background: rgba(255, 255, 255, 0.08);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+.tag-option:hover {
+  background: var(--violet);
+  box-shadow: 0 0 6px rgba(148, 0, 211, 0.5);
+}
+.tag-option.active {
+  background: var(--violet);
+  color: white;
+  box-shadow: 0 0 8px rgba(148, 0, 211, 0.7);
+}
+
+
+/* === ВЫПАДАЮЩИЙ СПИСОК ТЭГОВ === */
+#tagsPopup {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 10px;
+  background: rgba(10, 10, 25, 0.95);
+  border: 1px solid rgba(148, 0, 211, 0.4);
+  border-radius: 12px;
+  padding: 14px;
+  width: 340px;
+  max-height: 280px;
+  overflow-y: auto;
+  display: none;
+  box-shadow: 0 0 20px rgba(148, 0, 211, 0.3);
+  z-index: 50;
+  animation: fadeSlideIn 0.25s ease forwards;
+}
+
+/* активное состояние */
+#tagsPopup.active {
+  display: block;
+}
+
+/* плавное появление */
+@keyframes fadeSlideIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* список тегов внутри */
+.tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag-item {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text);
+  border: 1px solid rgba(148, 0, 211, 0.4);
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.tag-item:hover {
+  background: var(--violet);
+  color: #fff;
+  box-shadow: 0 0 10px rgba(148, 0, 211, 0.6);
+}
+.tag-item.selected {
+  background: var(--violet);
+  color: #fff;
+  box-shadow: 0 0 12px rgba(148, 0, 211, 0.8);
+}
+
+/* === ВЫБРАННЫЕ ТЭГИ (плашки под поиском) === */
+#selectedTags {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag-chip {
+  background: rgba(148, 0, 211, 0.25);
+  border: 1px solid rgba(148, 0, 211, 0.6);
+  color: var(--text);
+  padding: 5px 10px;
+  border-radius: 10px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.tag-chip:hover {
+  background: var(--violet);
+  color: #fff;
+  box-shadow: 0 0 10px rgba(148, 0, 211, 0.7);
+}
+
+/* === POPUP СПИСКА ТЭГОВ === */
+.tags-popup {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 6px;
+  width: 100%;
+  background: rgba(20, 20, 30, 0.96);
+  border: 1px solid rgba(148, 0, 211, 0.4);
+  border-radius: 10px;
+  padding: 12px;
+  box-shadow: 0 0 20px rgba(148, 0, 211, 0.25);
+  backdrop-filter: blur(6px);
+  z-index: 50;
+  display: none;
+  opacity: 0;
+  transform: scale(0.95);
+  transition: all 0.25s ease;
+}
+
+.tags-popup.active {
+  display: block;
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Элементы списка тэгов */
+.tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.tag-item {
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(148, 0, 211, 0.4);
+  color: var(--text);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  user-select: none;
+}
+
+.tag-item:hover {
+  background: rgba(148, 0, 211, 0.4);
+  color: #fff;
+  box-shadow: 0 0 10px rgba(148, 0, 211, 0.5);
+}
+
+.tag-item.selected {
+  background: var(--violet);
+  color: #fff;
+  box-shadow: 0 0 12px rgba(148, 0, 211, 0.7);
+}
+
+/* Плашки выбранных тэгов */
+.tags-selected {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.tag-chip {
+  background: rgba(148, 0, 211, 0.25);
+  border: 1px solid rgba(148, 0, 211, 0.5);
+  color: #fff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.tag-chip:hover {
+  background: rgba(148, 0, 211, 0.6);
+  box-shadow: 0 0 10px rgba(148, 0, 211, 0.6);
+}
+
+
+/* === Панель вкладок === */
+.tab-controls {
+  display: none; /* 💻 по умолчанию скрыта на десктопе */
+}
+
+.tab-btn {
+  padding: 10px 22px;
+  border-radius: 12px;
+  border: 1px solid var(--violet);
+  background: rgba(255,255,255,0.06);
+  color: var(--text);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.tab-btn:hover {
+  background: rgba(148, 0, 211, 0.25);
+}
+
+.tab-btn.active {
+  background: var(--violet);
+  color: #fff;
+  box-shadow: 0 0 15px rgba(148,0,211,0.6);
+}
+
+/* === Анимация переключения вкладок === */
+.scroll-block {
+  opacity: 0;
+  transform: scale(0.97);
+  pointer-events: none;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.scroll-block.active {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: all;
+  animation: glowFadeIn 0.45s ease;
+}
+
+@keyframes glowFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+    box-shadow: 0 0 20px rgba(148, 0, 211, 0.2);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+    box-shadow: 0 0 25px rgba(148, 0, 211, 0.4);
+  }
+}
+
+
+/* === Неоновое свечение при переключении вкладок === */
+.tab-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.tab-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(148,0,211,0.6), transparent 70%);
+  opacity: 0;
+  transform: scale(0.6);
+  transition: opacity 0.3s ease, transform 0.4s ease;
+  pointer-events: none;
+}
+
+.tab-btn.glow::after {
+  opacity: 1;
+  transform: scale(1.3);
+  animation: neonPulse 0.4s ease;
+}
+
+@keyframes neonPulse {
+  0% {
+    opacity: 0;
+    transform: scale(0.7);
+    box-shadow: 0 0 0 rgba(148,0,211,0);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1.1);
+    box-shadow: 0 0 18px rgba(148,0,211,0.7);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.3);
+    box-shadow: 0 0 0 rgba(148,0,211,0);
+  }
+}
+
+
+/* === Активируется только на мобильных === */
+/* --- Адаптивное поведение под мобильные устройства --- */
+@media (max-width: 900px) {
+  #cata-main {
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 40px 0;
+    height: auto;
+  }
+
+  .right {
+    flex-direction: column;
+    width: 90%;
+    gap: 20px;
+    height: auto;
+  }
+
+  /* показываем только активную вкладку */
+  .scroll-block {
+    width: 100%;
+    height: auto;
+    display: none;
+  }
+  .scroll-block.active {
+    display: flex;
+  }
+
+  /* делаем панель вкладок видимой */
+  .tab-controls {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 25px;
+  }
+
+  .tab-btn {
+    padding: 8px 18px;
+    border-radius: 10px;
+    border: 1px solid var(--violet);
+    background: rgba(255,255,255,0.05);
+    color: var(--text);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .tab-btn.active {
+    background: var(--violet);
+    box-shadow: 0 0 15px rgba(148,0,211,0.6);
+  }
+
+  .scroll-list {
+    height: auto;
+    max-height: 65vh;
+  }
+
+  #cata-main {
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    padding: 40px 0;
+    height: auto;
+  }
+
+  .right {
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    gap: 20px;
+    height: auto;
+  }
+
+  /* показываем только активный блок */
+  .scroll-block {
+    display: none;
+    width: 100%;
+    max-width: 90%;
+    height: auto;
+  }
+
+  .scroll-block.active {
+    display: flex;
+  }
+
+  /* панель вкладок видна только на мобильных */
+  .tab-controls {
+    display: flex !important;
+    justify-content: center;
+    gap: 12px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+  }
+
+  .tab-btn {
+    padding: 8px 20px;
+    border-radius: 10px;
+    border: 1px solid var(--violet);
+    background: rgba(255,255,255,0.05);
+    color: var(--text);
+    font-weight: 600;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
+  .tab-btn.active {
+    background: var(--violet);
+    box-shadow: 0 0 15px rgba(148,0,211,0.6);
+    color: #fff;
+  }
+}
+
+
+
+/* --- Планшеты (до 1200px) --- */
+@media (max-width: 1200px) {
+  #cata-main {
+    padding: 0 5%;
+  }
+
+  #cataclysm-logo {
+    font-size: 68px;
+  }
+
+  .right {
+    width: 65%;
+    gap: 20px;
+  }
+
+  .scroll-list {
+    height: 70vh;
+  }
+
+  .post-card {
+    width: 90%;
+  }
+}
+
+/* --- Средние планшеты и маленькие ноутбуки (до 992px) --- */
+@media (max-width: 992px) {
+  #cata-main {
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    height: auto;
+    padding: 60px 0 100px;
+  }
+
+  #cataclysm-logo {
+    font-size: 60px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .search-section {
+    width: 90%;
+    align-items: center;
+  }
+
+  .right {
+    width: 95%;
+    flex-direction: column;
+    align-items: stretch;
+    height: auto;
+    gap: 40px;
+  }
+
+  .scroll-block {
+    height: auto;
+    padding: 0;
+  }
+
+  .scroll-list {
+    height: 400px;
+    overflow-y: auto;
+  }
+
+  .post-card {
+    width: 100%;
+  }
+}
+
+/* --- Смартфоны (до 768px) --- */
+@media (max-width: 768px) {
+  #cataclysm-logo {
+    font-size: 50px;
+  }
+
+  .search-section {
+    width: 100%;
+    margin-top: 30px;
+  }
+
+  .search-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  #searchInput {
+    width: 100%;
+    font-size: 16px;
+  }
+
+  #tagsBtn {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+  }
+
+  .tags-popup {
+    width: 100%;
+    left: 0;
+  }
+
+  .scroll-list {
+    height: 55vh;
+  }
+
+  .post-card {
+    width: 95%;
+    font-size: 15px;
+  }
+}
+
+/* --- Маленькие телефоны (до 480px) --- */
+@media (max-width: 480px) {
+  #cataclysm-logo {
+    font-size: 42px;
+    line-height: 1.1;
+  }
+
+  .search-section {
+    margin-top: 20px;
+    width: 95%;
+  }
+
+  .search-bar {
+    gap: 6px;
+  }
+
+  #searchInput {
+    padding: 8px 10px;
+    font-size: 14px;
+  }
+
+  #tagsBtn {
+    padding: 8px;
+    font-size: 14px;
+  }
+
+  .post-card {
+    padding: 12px;
+  }
+
+  .post-card h3 {
+    font-size: 18px;
+  }
+
+  .post-card p {
+    font-size: 14px;
+  }
+
+  .tag {
+    font-size: 12px;
+    padding: 3px 8px;
+  }
+}
+
+/* --- Очень большие экраны (4K и ультравайд) --- */
+@media (min-width: 1600px) {
+  #cataclysm-logo {
+    font-size: 100px;
+  }
+
+  .right {
+    width: 55%;
+    gap: 40px;
+  }
+
+  .post-card {
+    width: 80%;
+    font-size: 17px;
+  }
+
+  .post-card h3 {
+    font-size: 22px;
+  }
+
+  #searchInput {
+    font-size: 18px;
+    padding: 12px 16px;
+  }
+
+  #tagsBtn {
+    font-size: 18px;
+  }
+}
+
+/* === FIX: отображение и прокрутка "Источников" на мобильных === */
+@media (max-width: 768px) {
+  #cata-main {
+    height: auto !important;
+    overflow: visible !important;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .right {
+    flex-direction: column;
+    width: 100%;
+    gap: 25px;
+    height: auto !important;
+  }
+/* === FIX: отображение и прокрутка "Источников" на мобильных === */
+@media (max-width: 768px) {
+  #cata-main {
+    height: auto !important;
+    overflow: visible !important;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .right {
+    flex-direction: column;
+    width: 100%;
+    gap: 25px;
+    height: auto !important;
+  }
+
+  .scroll-block {
+    flex: none;
+    width: 100%;
+    min-height: 300px;
+    overflow: visible;
+  }
+
+  .scroll-list {
+    height: auto;
+    max-height: none;
+    overflow-y: visible;
+  }
+
+  #guidesList,
+  #sourcesList {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+}
+
+  .scroll-block {
+    flex: none;
+    width: 100%;
+    min-height: 300px;
+    overflow: visible;
+  }
+
+  .scroll-list {
+    height: auto;
+    max-height: none;
+    overflow-y: visible;
+  }
+
+  #guidesList,
+  #sourcesList {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+}
+
+/* --- Десктоп: показываем оба блока --- */
+@media (min-width: 901px) {
+  .scroll-block {
+    opacity: 1 !important;
+    transform: scale(1) !important;
+    pointer-events: all !important;
+    display: flex !important;
+  }
+
+  .tab-controls {
+    display: none !important; /* прячем вкладки на десктопе */
+  }
+}
+
+/* --- FIX: мобильный скролл активного списка --- */
+@media (max-width: 900px) {
+  .scroll-block.active {
+    display: flex !important;
+    flex-direction: column;
+    overflow: visible !important;
+  }
+
+  .scroll-block.active .scroll-list {
+    height: auto !important;
+    max-height: 70vh;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch; /* для iOS */
+    scrollbar-width: none;
+  }
+
+  .scroll-block.active .scroll-list::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* === FIX: корректное отображение popup с тэгами === */
+#tagsPopup {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 10px;
+  background: rgba(10, 10, 25, 0.95);
+  border: 1px solid rgba(148, 0, 211, 0.4);
+  border-radius: 12px;
+  padding: 14px;
+  width: 340px;
+  max-height: 280px;
+  overflow-y: auto;
+  box-shadow: 0 0 20px rgba(148, 0, 211, 0.3);
+  z-index: 9999;
+  display: none;
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+#tagsPopup.active {
+  display: block;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+#tagsPopup .tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* === Адаптив загрузочного экрана (Mercilium / Cataclysm) === */
+
+/* Базовый стиль */
+.loading-text {
+  font-size: 48px;
+  letter-spacing: 6px;
+  text-align: center;
+  word-break: keep-all;
+  white-space: nowrap; /* 💡 запрещает перенос букв */
+}
+
+/* Средние устройства (планшеты) */
+@media (max-width: 992px) {
+  .loading-text {
+    font-size: 38px;
+    letter-spacing: 4px;
+  }
+}
+
+/* Смартфоны */
+@media (max-width: 768px) {
+  .loading-text {
+    font-size: 28px;
+    letter-spacing: 3px;
+  }
+}
+
+/* Очень маленькие экраны (iPhone SE, Galaxy Mini и т.п.) */
+@media (max-width: 480px) {
+  .loading-text {
+    font-size: 22px;
+    letter-spacing: 2px;
+  }
+}

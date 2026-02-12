@@ -1,0 +1,330 @@
+:root {
+  --text: #ffffff;
+  --violet: #9400D3;
+  --blue: #2ea0ff;
+  --orange: #ff9c33;
+  --midnight: #0a0a1f;
+}
+
+/* ========== ОСНОВА ========== */
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Montserrat', sans-serif;
+  height: 100%;
+  background: var(--midnight);
+  overflow: hidden;
+  color: var(--text);
+  transition: background 0.4s ease;
+}
+
+/* ========== ЗВЁЗДНЫЙ ФОН ========== */
+#stars {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: radial-gradient(ellipse at bottom, #151531 0%, #050515 100%);
+  z-index: 0;
+}
+
+/* ========== ЭКРАН ЗАГРУЗКИ ========== */
+#loader {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse at bottom, #0a0a1f 0%, #02020b 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.6s ease forwards;
+}
+
+.loading-text {
+  font-size: 48px;
+  letter-spacing: 6px;
+}
+
+.loading-word {
+  display: inline-block;
+  animation: blurText 1.4s infinite alternate;
+}
+
+@keyframes blurText {
+  from { filter: blur(0px); opacity: 1; color: var(--text); }
+  to { filter: blur(4px); opacity: 0.4; color: var(--violet); }
+}
+
+/* ========== ГЛАВНЫЙ ЭКРАН ========== */
+#main {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  height: 100vh;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8%;
+  opacity: 1; /* фикс: сделать видимым всегда */
+  transform: translateY(0);
+  transition: opacity 1.2s ease, transform 1.2s ease;
+}
+body.fade-in #main {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ========== ЛЕВАЯ ЧАСТЬ (ЛОГОТИП) ========== */
+.left {
+  flex: 0 0 auto; /* ширина по контенту */
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.left .logo {
+  font-size: 80px;
+  font-weight: 800;
+  color: var(--text);
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  transition: color 0.3s ease, border-bottom 0.3s ease, text-shadow 0.3s ease;
+  animation: floatLogo 6s ease-in-out infinite;
+}
+
+.left .logo:hover {
+  color: var(--violet);
+  border-bottom: 3px solid var(--violet);
+  text-shadow: 0 0 12px rgba(148,0,211,0.6);
+}
+
+/* ========== ПРАВАЯ КОЛОНКА ========== */
+.right {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: flex-end;
+  animation: floatButtons 8s ease-in-out infinite alternate;
+}
+
+@keyframes floatButtons {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+/* ========== КНОПКИ ========== */
+.main-btn {
+  font-size: 22px;
+  padding: 14px 32px;
+  border: 2px solid var(--violet);
+  border-radius: 12px;
+  color: var(--text);
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.04);
+  text-align: center;
+  transition: all 0.3s ease;
+  width: 260px;
+  backdrop-filter: blur(6px);
+}
+.main-btn:hover {
+  background: var(--violet);
+  transform: scale(1.08);
+  box-shadow: 0 0 20px rgba(148,0,211,0.6);
+}
+
+/* ========== СТРАНИЦЫ СЕРВИСОВ ========== */
+.container {
+  z-index: 5;
+  position: relative;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.container h1 {
+  font-size: 60px;
+  margin-bottom: 10px;
+}
+.container p {
+  font-size: 20px;
+  max-width: 600px;
+  line-height: 1.5;
+  opacity: 0.9;
+}
+
+a.back {
+  display: inline-block;
+  margin-top: 25px;
+  color: inherit;
+  font-weight: bold;
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  transition: 0.3s;
+}
+a.back:hover { border-color: currentColor; }
+
+/* Цветовые темы по body-классу */
+body.home { --accent: var(--violet); }
+body.cataclysm { --accent: var(--violet); }
+body.lounge { --accent: var(--orange); }
+body.dbauth { --accent: var(--blue); }
+
+body.cataclysm h1, body.cataclysm a.back { color: var(--violet); }
+body.lounge h1, body.lounge a.back { color: var(--orange); }
+body.dbauth h1, body.dbauth a.back { color: var(--blue); }
+
+/* ========== ЭФФЕКТЫ ========== */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* === ⚡ MERCILIUM QUANTUM LINE BUTTONS === */
+.main-btn {
+  position: relative;
+  display: inline-block;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 14px 34px;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  color: #bfbfff;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* 🔹 Общий hover-эффект — лёгкая подсветка и свечение */
+.main-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  border: 2px solid transparent;
+  transition: all 0.45s ease;
+  opacity: 0.7;
+}
+.main-btn:hover {
+  color: #fff;
+  text-shadow: 0 0 8px currentColor;
+  transform: scale(1.04);
+}
+.main-btn:hover::before {
+  transform: scale(1.05);
+  opacity: 1;
+}
+
+/* === 🎇 CATACLYSM / MERCILIUM === */
+.main-btn.cataclysm::before {
+  border-image: linear-gradient(90deg, #8b00ff, #00c3ff) 1;
+}
+.main-btn.cataclysm:hover {
+  box-shadow:
+    0 0 20px rgba(139, 0, 255, 0.4),
+    0 0 40px rgba(0, 195, 255, 0.2);
+}
+
+/* === 🌅 LOUNGE (тёплая энергия) === */
+.main-btn.lounge::before {
+  border-image: linear-gradient(90deg, #ff7e00, #ff33a6) 1;
+}
+.main-btn.lounge:hover {
+  box-shadow:
+    0 0 20px rgba(255, 126, 0, 0.4),
+    0 0 40px rgba(255, 51, 166, 0.2);
+  color: #ffeedd;
+}
+
+/* === 🧿 DBAUTH (глубокий синий) === */
+.main-btn.dbauth::before {
+  border-image: linear-gradient(90deg, #0044ff, #00ffee) 1;
+}
+.main-btn.dbauth:hover {
+  box-shadow:
+    0 0 20px rgba(0, 68, 255, 0.5),
+    0 0 40px rgba(0, 255, 238, 0.25);
+  color: #d9f7ff;
+}
+
+/* === 🔮 Дополнительный эффект бегущего света === */
+.main-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(120deg,
+    transparent 0%,
+    rgba(255,255,255,0.2) 50%,
+    transparent 100%);
+  transform: translateX(-100%);
+  opacity: 0;
+  transition: all 0.7s ease;
+}
+.main-btn:hover::after {
+  opacity: 1;
+  transform: translateX(100%);
+}
+
+
+
+/* ========== АДАПТИВНОСТЬ ========== */
+@media (max-width: 900px) {
+  #main {
+    flex-direction: column;
+    justify-content: center;
+    gap: 50px;
+    padding: 0 5%;
+  }
+  .left .logo {
+    font-size: 60px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  .right {
+    align-items: center;
+  }
+  .main-btn {
+    font-size: 18px;
+    width: 220px;
+  }
+}
+
+/* === Адаптив загрузочного экрана (Mercilium / Cataclysm) === */
+
+/* Базовый стиль */
+.loading-text {
+  font-size: 48px;
+  letter-spacing: 6px;
+  text-align: center;
+  word-break: keep-all;
+  white-space: nowrap; /* 💡 запрещает перенос букв */
+}
+
+/* Средние устройства (планшеты) */
+@media (max-width: 992px) {
+  .loading-text {
+    font-size: 38px;
+    letter-spacing: 4px;
+  }
+}
+
+/* Смартфоны */
+@media (max-width: 768px) {
+  .loading-text {
+    font-size: 28px;
+    letter-spacing: 3px;
+  }
+}
+
+/* Очень маленькие экраны (iPhone SE, Galaxy Mini и т.п.) */
+@media (max-width: 480px) {
+  .loading-text {
+    font-size: 22px;
+    letter-spacing: 2px;
+  }
+}

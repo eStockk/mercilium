@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Lounge — Mercilium Network Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/lounge.css">
+</head>
+<body>
+  <canvas id="bg"></canvas>
+
+  <!-- === LOADER === -->
+  <div id="loader">
+    <div class="cube">
+      <div class="side"></div>
+      <div class="side"></div>
+      <div class="side"></div>
+      <div class="side"></div>
+      <div class="side"></div>
+      <div class="side"></div>
+    </div>
+    <div class="loading">
+      <div class="loading-text">
+        <span class="loading-word">L</span>
+        <span class="loading-word">O</span>
+        <span class="loading-word">U</span>
+        <span class="loading-word">N</span>
+        <span class="loading-word">G</span>
+        <span class="loading-word">E</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- === MAIN === -->
+  <main class="lounge" style="display:none;">
+    <a href="/" class="back-link">← Назад в Mercilium</a>
+    <h1 class="title">Lounge</h1>
+    <p class="subtitle">Выберите способ настройки сети</p>
+
+    <div class="cards">
+      <div class="card card-custom" data-target="/lounge/custom/">
+        <div class="card-bg" style="background-image: url('./img/make_site_bg.png');"></div>
+        <h2>Создание собственных офисов</h2>
+        <p>Поддержанный конструктор офисов для сетевой связи и упрощения/ускорения работы специалиста.</p>
+      </div>
+
+      <div class="card card-auto" data-target="/lounge/auto/">
+        <div class="card-bg" style="background-image: url('./img/gen_site_bg.png');"></div>
+        <h2>Генерация автоматической сети</h2>
+        <p>Автоматическая развёртка офисов без участия пользователя. Требует проверки возможностей сервиса.</p>
+      </div>
+    </div>
+  </main>
+
+  <script src="assets/stars.js"></script>
+  <script src="assets/lounge.js"></script>
+  <script>
+    window.addEventListener("load", () => {
+      const loader = document.getElementById("loader");
+      const lounge = document.querySelector(".lounge");
+      setTimeout(() => {
+        loader.classList.add("fade");
+        setTimeout(() => {
+          loader.style.display = "none";
+          lounge.style.display = "flex";
+        }, 800);
+      }, 1800);
+    });
+  </script>
+</body>
+</html>

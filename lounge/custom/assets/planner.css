@@ -1,0 +1,2234 @@
+:root{
+  --bg-deep:#05020a;
+  --bg-card:rgba(255,255,255,0.04);
+  --glass:rgba(20,16,32,0.55);
+  --violet:#b073ff;
+  --violet-strong:#9a4dff;
+  --green:#32cd32;
+  --orange:#ff8c3a;
+  --blue:#3aa0ff;
+  --gray:#9aa0aa;
+  --text:#e9e6ff;
+  --muted:#b8b3d1;
+  --border:rgba(255,255,255,0.08);
+  --shadow:0 10px 30px rgba(0,0,0,0.45);
+}
+
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:'Montserrat',system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial;
+  color:var(--text);
+  background: radial-gradient(ellipse at 30% 120%, #0a0717 0%, #020009 55%, #000006 100%);
+  overflow:hidden;
+}
+
+/* Фон-сцена */
+#scene{
+  position:fixed; inset:0; z-index:0; pointer-events:none;
+}
+
+/* Верхняя панель */
+.topbar{
+  position:relative; z-index:3;
+  display:flex; align-items:center; gap:24px;
+  padding:18px 28px;
+  border-bottom:1px solid var(--border);
+  background:linear-gradient(180deg, rgba(10,7,20,0.7), rgba(10,7,20,0.45));
+  backdrop-filter: blur(8px);
+}
+.topbar .back{
+  color:var(--muted); text-decoration:none; font-weight:700;
+}
+.topbar h1{ margin:0; font-size:22px; letter-spacing:0.3px; }
+.topbar .actions{ margin-left:auto; display:flex; gap:10px; }
+
+/* Кнопки */
+.btn{
+  appearance:none; border:none; cursor:pointer;
+  background:var(--glass); color:var(--text);
+  padding:10px 14px; border-radius:12px; font-weight:700;
+  border:1px solid var(--border);
+  transition:.2s ease; box-shadow:var(--shadow);
+}
+.btn:hover{ transform: translateY(-1px); background:rgba(255,255,255,.06); }
+.btn.violet{ background:rgba(176,115,255,.15); border-color:rgba(176,115,255,.45); }
+.btn.violet:hover{ box-shadow:0 0 24px rgba(176,115,255,.45); }
+.btn.ghost{ background:transparent; border-color:var(--border); }
+.btn.mini{ padding:6px 10px; border-radius:9px; font-size:12px }
+
+/* Рабочее пространство */
+.workspace{
+  position:relative; z-index:1;
+  display:grid; grid-template-columns: 1fr 420px;
+  gap:15px; height: calc(100vh - 70px);
+  padding:28px 28px 28px;         /* ↑ больше «воздуха» вокруг для свечения */
+  overflow:visible;               /* ничего не режем на уровне рабочей области */
+}
+
+/* Левый блок */
+.left{
+  overflow:auto;                  /* прокрутка остаётся тут */
+  overscroll-behavior:contain;
+}
+.office-list{ display:grid; grid-template-columns: repeat(auto-fill,minmax(340px,1fr)); gap:16px; }
+.office-list.empty{ display:flex; align-items:center; justify-content:center; }
+.empty-note{ text-align:center; opacity:.8; }
+.empty-ill{ width:220px; height:140px; margin:0 auto 8px; border-radius:18px;
+  background: radial-gradient(120px 80px at 30% 20%, rgba(176,115,255,.2), transparent 60%),
+    radial-gradient(90px 60px at 70% 30%, rgba(80,200,255,.18), transparent 55%),
+    linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.01));
+  border:1px dashed var(--border);
+}
+
+/* Карточка офиса (дизайнерская) */
+.office-card{
+  position:relative; isolation:isolate;
+  overflow:hidden;                /* сама карточка тоже не обрезает подсветку */
+  border-radius:18px;
+  background:radial-gradient(circle at 80% 20%, rgba(255,255,255,0.03), rgba(255,255,255,0.01) 80%);
+  border:1px solid var(--border);
+  min-height:168px; padding:16px 16px 14px;
+  cursor:pointer; transition:.25s ease; box-shadow:var(--shadow);
+  margin-top: 25px;
+}
+.office-card:hover{ transform: translateY(-3px); box-shadow:0 12px 34px rgba(0,0,0,.6); }
+
+/* Левая иллюстрация здания (не на всю ширину) */
+.office-card .pic{
+  position:absolute; inset:0;
+  background-size: 55%;
+  background-repeat:no-repeat;
+  background-position: 20px center;
+  opacity:.25;
+  filter:saturate(85%) brightness(1.05);
+  mix-blend-mode:screen;
+  transition: opacity .3s ease, transform .4s ease;
+}
+.office-card:hover .pic{ opacity:.35; transform:scale(1.04); }
+
+/* Мягкий боковой свет */
+.office-card .overlay{
+  position:absolute; inset:0;
+  background: radial-gradient(ellipse at right center, rgba(176,115,255,0.18), transparent 70%);
+  opacity:.4; pointer-events:none;
+}
+
+/* Контент карточки */
+.office-card .head{ display:flex; align-items:center; gap:8px; margin-bottom:6px; position:relative; z-index:2; }
+.office-card .title{ font-weight:800; font-size:16px; letter-spacing:.2px; margin:0; }
+.office-card .sub{ font-size:12.5px; color:var(--muted); margin:0 0 8px; position:relative; z-index:2; }
+.office-card .meta{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; position:relative; z-index:2; }
+
+.badge{
+  font-size:11px; padding:5px 8px; border-radius:999px;
+  background:rgba(255,255,255,.06); border:1px solid var(--border);
+}
+
+/* статус */
+.status.online{ transition: background 0.6s ease, box-shadow 0.6s ease, color 0.6s ease;color:#8fff9c; background:rgba(50,205,50,.12); border-color:rgba(50,205,50,.35); }
+.status.offline{ transition: background 0.6s ease, box-shadow 0.6s ease, color 0.6s ease;color:#ff9c9c; background:rgba(255,80,80,.12); border-color:rgba(255,80,80,.35); }
+
+
+.status.online {
+  color:#8fff9c;
+  background:rgba(50,205,50,.12);
+  border-color:rgba(50,205,50,.35);
+  animation: onlinePulse 1.5s ease;
+}
+
+@keyframes onlinePulse {
+  0% {
+    box-shadow: 0 0 0px rgba(50,255,80,0);
+    filter: brightness(1);
+  }
+  40% {
+    box-shadow: 0 0 30px rgba(50,255,80,0.7);
+    filter: brightness(1.5);
+  }
+  100% {
+    box-shadow: 0 0 10px rgba(50,255,80,0.4);
+    filter: brightness(1);
+  }
+}
+
+/* === Активная карточка офиса: подсветка без обрезки === */
+.office-card.active{
+  border:1px solid rgba(176,115,255,0.6);
+  transform: translateY(-4px);
+  z-index:5;                      /* выше соседей */
+}
+
+.office-card.active {
+  animation: glowShift 0.8s ease, breathing 3s ease-in-out infinite;
+}
+
+@keyframes breathing {
+  0%   { box-shadow: 0 0 22px rgba(176,115,255,0.4); filter: brightness(1); }
+  50%  { box-shadow: 0 0 40px rgba(176,115,255,0.7); filter: brightness(1.15); }
+  100% { box-shadow: 0 0 22px rgba(176,115,255,0.4); filter: brightness(1); }
+}
+
+.office-card.active::before{
+  content:"";
+  position:absolute;
+  inset:-18px;                    /* выносим свечение за края карточки */
+  border-radius:26px;
+  background: radial-gradient(ellipse at center,
+              rgba(176,115,255,0.55) 0%,
+              rgba(176,115,255,0.20) 35%,
+              rgba(176,115,255,0.08) 60%,
+              transparent 75%);
+  filter: blur(14px);
+  pointer-events:none;
+  animation:pulseActive 3.6s ease-in-out infinite;
+}
+@keyframes pulseActive{
+  0%{ opacity:.55; transform:scale(.98); }
+  50%{ opacity:.9;  transform:scale(1.02); }
+  100%{ opacity:.55; transform:scale(.98); }
+}
+
+.office-card {
+  transition: box-shadow 0.4s ease, transform 0.3s ease, border-color 0.3s ease, filter 0.5s ease;
+}
+
+.office-card.active {
+  animation: glowShift 0.7s ease;
+}
+
+@keyframes glowShift {
+  0% {
+    box-shadow: 0 0 0px rgba(176,115,255,0);
+    filter: brightness(1);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(176,115,255,0.6);
+    filter: brightness(1.3);
+  }
+  100% {
+    box-shadow: 0 0 20px rgba(176,115,255,0.4);
+    filter: brightness(1);
+  }
+}
+
+
+/* Правая панель */
+.right{
+  overflow:auto;                  /* прокрутка правой панели */
+  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+  border:1px solid var(--border); border-radius:18px; padding:14px;
+  box-shadow:var(--shadow);
+}
+.details.placeholder{ display:flex; align-items:center; justify-content:center; height:100%; }
+.details .hint{ text-align:center; opacity:.8; }
+
+.details .hero{
+  position:relative; overflow:hidden; border-radius:14px; height:180px;
+  background:var(--bg-card); border:1px solid var(--border); margin-bottom:12px;
+}
+.details .hero .hero-img{
+  position:absolute; left:0; bottom:-10px; width:220px; height:220px; opacity:.28;
+  background-size:contain; background-repeat:no-repeat; background-position:left bottom;
+  filter:saturate(90%) brightness(1.05);
+}
+.details .hero .hero-glow{
+  position:absolute; inset:auto -15% 0 -15%; height:80px;
+  background: radial-gradient(60% 120% at 50% 100%, rgba(176,115,255,.35), transparent 60%);
+  opacity:.5; pointer-events:none;
+}
+
+.details .title{ margin:0 0 4px; font-size:18px; font-weight:900; }
+.details .sub{ margin:0 0 10px; color:var(--muted); }
+
+.block{
+  border:1px solid var(--border); border-radius:14px; padding:12px; margin-bottom:12px;
+  background:rgba(255,255,255,.03);
+}
+.block h4{ margin:0 0 8px; font-size:13.5px; letter-spacing:.3px; text-transform:uppercase; color:#d6cdff; }
+
+/* Кнопки действий в правом блоке */
+.actions-line{ display:flex; gap:8px; flex-wrap:wrap; }
+.actions-line .btn{ flex:1 1 auto; }
+
+/* VLAN список в правом блоке */
+.vlan-list{ display:flex; flex-direction:column; gap:8px; }
+.vlan-item{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:8px 10px; border:1px solid var(--border); border-radius:10px;
+  background:rgba(255,255,255,.02);
+}
+.vlan-item .meta{ font-size:13px; }
+.vlan-item .meta b{ font-size:13.5px; }
+.vlan-item .remove{ background:transparent; border:1px solid #ff8080; color:#ff9ca0; padding:4px 8px; border-radius:8px; cursor:pointer; }
+
+/* VLAN rows в модалке (planner) — полноценные поля */
+/* VLAN rows в модалке (planner) — полноценные поля */
+.vlan-row input,
+.vlan-row select{
+  height:44px; padding:0 14px;
+  border-radius:12px;
+  background:rgba(255,255,255,.06);
+  color:#fff;
+  border:1px solid var(--border);
+  outline:none;
+}
+.vlan-row select{
+  -webkit-appearance:none; -moz-appearance:none; appearance:none;
+  padding-right:44px;
+}
+
+/* × */
+.vlan-row .del{
+  height:44px;
+  border:1px solid #ff8e8e;
+  color:#ffc4c7; background:transparent;
+  border-radius:10px; cursor:pointer;
+}
+
+.vlan-row input:focus, .vlan-row select:focus{
+  border-color:#a78bfa;
+  box-shadow:0 0 0 3px rgba(167,139,250,.25);
+}
+
+
+/* Переключатель online/offline */
+.switch{
+  display:inline-flex; align-items:center; gap:8px; user-select:none; cursor:pointer;
+}
+.switch input{ display:none; }
+.switch .track{
+  width:44px; height:22px; border-radius:999px; position:relative; background:#512c72;
+  border:1px solid rgba(255,255,255,.15);
+}
+.switch .thumb{
+  position:absolute; top:1.5px; left:1.5px; width:18px; height:18px; border-radius:50%;
+  background:#fff; transition:.2s ease;
+}
+.switch input:checked + .track .thumb{ transform: translateX(22px); background:#a8ffb2; }
+
+/* Модалки */
+.modal{ position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+  background:rgba(0,0,0,.5); z-index:30; opacity:0; pointer-events:none; transition:.2s ease; }
+.modal.active{ opacity:1; pointer-events:auto; }
+.modal__dialog{
+  width:min(720px, calc(100vw - 32px)); max-height:80vh; overflow:auto;
+  background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+  border:1px solid var(--border); border-radius:16px; padding:16px; position:relative;
+  box-shadow:0 16px 50px rgba(0,0,0,.6);
+}
+.modal__dialog.wide{ width:min(960px, calc(100vw - 32px)); }
+.modal__title{ margin:0 0 12px; }
+.modal__close{
+  position:absolute; top:8px; right:10px; width:34px; height:34px; border-radius:10px;
+  background:rgba(255,255,255,.06); border:1px solid var(--border); color:#fff; cursor:pointer;
+}
+.form .field{ display:flex; flex-direction:column; gap:6px; margin-bottom:10px; }
+.field .inline{ display:flex; gap:8px; }
+.field .help{ width:42px; border-radius:10px; border:1px solid var(--border); background:rgba(255,255,255,.06); color:#fff; }
+.form input{
+  width:100%; background:rgba(255,255,255,.06); border:1px solid var(--border);
+  border-radius:12px; padding:10px 12px; color:#fff; outline:none;
+}
+.form input::placeholder{ color:#a9a3c0; }
+.modal__footer{ display:flex; gap:10px; justify-content:flex-end; margin-top:12px; }
+
+/* VLAN rows в модалке */
+.vlans{ border:1px dashed var(--border); border-radius:12px; padding:10px; background:rgba(255,255,255,.03); }
+.vlans__head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+.vlans__rows{ display:flex; flex-direction:column; gap:8px; }
+.vlan-row{
+  display:grid;
+  grid-template-columns: 120px 1fr 44px;
+  gap:12px;
+  align-items:center;
+}
+.vlan-row .del{ border:1px solid #ff8e8e; color:#ffc4c7; background:transparent; border-radius:10px; }
+
+/* IO (входы/выходы) */
+.io-grid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px; }
+.io-card{
+  border:1px solid var(--border); border-radius:14px; padding:14px;
+  background: rgba(255,255,255,.03); cursor:pointer; transition:.2s ease; position:relative;
+}
+.io-card:hover{ transform: translateY(-2px); box-shadow:0 10px 26px rgba(0,0,0,.45); }
+.io-card h3{ margin:0 0 6px; }
+.io-card .io-dot{
+  position:absolute; width:14px; height:14px; border-radius:50%; right:12px; top:12px; background:var(--c, #fff);
+  box-shadow:0 0 18px var(--c, #fff);
+}
+
+.muted{ color:var(--muted); font-size:14px; }
+
+/* Скролл */
+.left::-webkit-scrollbar, .right::-webkit-scrollbar, .modal__dialog::-webkit-scrollbar{ width:10px; height:10px; }
+.left::-webkit-scrollbar-thumb, .right::-webkit-scrollbar-thumb, .modal__dialog::-webkit-scrollbar-thumb{
+  background: rgba(255,255,255,.08); border-radius:999px;
+}
+
+/* Доп. отступ снизу, чтобы свечение карточек у нижней кромки тоже не обрезалось */
+.left{ padding-bottom:22px; }
+
+.right {
+  transition: box-shadow 0.6s ease, border-color 0.5s ease;
+}
+
+.right.glow {
+  box-shadow: 0 0 35px rgba(176,115,255,0.3), inset 0 0 25px rgba(176,115,255,0.15);
+  border-color: rgba(176,115,255,0.4);
+}
+
+/* =====================================================
+   === ОФИС: ЭКРАН ЗАГРУЗКИ ===
+===================================================== */
+.office-loader {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at center, #060010 0%, #010007 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  z-index: 9999;
+  animation: fadeIn 0.8s ease;
+}
+
+.office-loader-inner {
+  width: 520px;
+  max-width: 90vw;
+  padding: 2rem;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(200,120,255,0.2);
+  border-radius: 16px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 0 30px rgba(200,100,255,0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.office-loader-image {
+  width: 100%;
+  height: 200px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  box-shadow: 0 0 20px rgba(180,120,255,0.4);
+}
+
+.office-loader-info {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(200,120,255,0.1);
+  border-radius: 8px;
+  padding: 1rem;
+  font-family: 'Courier New', monospace;
+  color: #dcd0ff;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  white-space: pre-line;
+  height: 140px;
+  overflow: hidden;
+}
+
+.office-loader-progress {
+  height: 4px;
+  width: 0%;
+  background: linear-gradient(90deg, #b46aff, #7f5cff);
+  border-radius: 4px;
+  margin-top: 1rem;
+  transition: width 0.3s ease;
+  box-shadow: 0 0 10px rgba(160,100,255,0.6);
+}
+
+/* =====================================================
+   === ОФИС: ГЛАВНАЯ ПАНЕЛЬ ===
+===================================================== */
+.office-panel {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(ellipse at bottom, #050010 0%, #000006 100%);
+  color: #fff;
+  z-index: 10000;
+  animation: fadeIn 0.8s ease;
+  backdrop-filter: blur(6px);
+}
+
+.office-panel-left {
+  flex: 0 0 45%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.office-panel-img {
+  width: 90%;
+  height: 320px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 20px;
+  box-shadow: 0 0 40px rgba(180,100,255,0.4);
+  opacity: 0.9;
+}
+
+.office-panel-right {
+  flex: 0 0 45%;
+  padding: 2rem 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: rgba(255,255,255,0.05);
+  border-radius: 20px;
+  border: 1px solid rgba(160,100,255,0.2);
+  box-shadow: 0 0 25px rgba(160,100,255,0.15);
+}
+
+.office-panel-right h2 {
+  font-size: 2rem;
+  color: #d7b8ff;
+  text-shadow: 0 0 10px rgba(160,100,255,0.6);
+  margin: 0;
+}
+
+.office-panel-right p {
+  margin: 0;
+  color: rgba(255,255,255,0.8);
+  font-size: 1rem;
+}
+
+.office-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.office-panel .btn {
+  padding: 0.7rem 1.4rem;
+  font-size: 1rem;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.office-panel .btn.violet {
+  background: linear-gradient(90deg, #9b6aff, #7a4cff);
+  color: #fff;
+  box-shadow: 0 0 20px rgba(160,100,255,0.4);
+}
+
+.office-panel .btn.violet:hover {
+  background: linear-gradient(90deg, #b47aff, #8b5cff);
+  box-shadow: 0 0 25px rgba(190,120,255,0.6);
+}
+
+.office-panel .btn.ghost {
+  background: transparent;
+  color: #aaa;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.office-panel .btn.ghost:hover {
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+}
+
+/* =====================================================
+   === АНИМАЦИИ ===
+===================================================== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.97); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* =====================================================
+   === ОФИС: ОСНОВНОЙ ВИД ===
+===================================================== */
+.office-loader.fadeOut,
+.office-view.fadeOut {
+  opacity: 0;
+  transform: scale(0.96);
+  transition: all 0.6s ease;
+}
+
+.office-view {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  background: radial-gradient(ellipse at bottom, #050010 0%, #000006 100%);
+  color: #fff;
+  z-index: 10000;
+  animation: fadeIn 0.8s ease;
+}
+
+.office-view-left {
+  flex: 0 0 30%;
+  padding: 2rem;
+  background: rgba(255,255,255,0.05);
+  border-right: 1px solid rgba(180,120,255,0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  backdrop-filter: blur(6px);
+}
+
+.office-view-left h2 {
+  font-size: 1.8rem;
+  color: #d6b8ff;
+  margin-bottom: 0.5rem;
+}
+
+.office-view-left p {
+  font-size: 1rem;
+  color: rgba(255,255,255,0.8);
+}
+
+.office-view-right {
+  flex: 1;
+  padding: 2rem 3rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.office-view-right h3 {
+  font-size: 1.3rem;
+  color: #d8c8ff;
+}
+
+.empty-machines {
+  margin-top: 2rem;
+  text-align: center;
+  color: rgba(255,255,255,0.7);
+}
+
+.actions-bottom {
+  text-align: right;
+  margin-top: 1rem;
+}
+
+.left-actions {
+  margin-top: auto;
+}
+
+/* Кнопки */
+.btn {
+  padding: 0.6rem 1.2rem;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn.violet {
+  background: linear-gradient(90deg, #9b6aff, #7a4cff);
+  color: #fff;
+}
+
+.btn.violet:hover {
+  background: linear-gradient(90deg, #b47aff, #8b5cff);
+}
+
+.btn.ghost {
+  background: transparent;
+  color: #bbb;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+.btn.ghost:hover {
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+}
+
+.badge.online {
+  color: #32cd32;
+  font-weight: 600;
+}
+
+.badge.offline {
+  color: #ff6666;
+  font-weight: 600;
+}
+
+.office-loader,
+.office-view {
+  display: none;
+}
+.office-loader.active,
+.office-view.active {
+  display: flex;
+}
+
+
+.office-view {
+  position: fixed;
+  inset: 0;
+  display: none;
+  background: radial-gradient(ellipse at bottom, #070012 0%, #000008 100%);
+  color: #fff;
+  z-index: 9998;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.6s ease;
+}
+
+.office-view.active {
+  display: flex;
+  opacity: 1;
+}
+
+.office-view.fade-out {
+  opacity: 0;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ===== LINK CARD: увеличивается только фон ===== */
+.link-card {
+  position: relative;
+  cursor: pointer;
+  border-radius: 14px;
+  overflow: hidden;
+  background: rgba(25, 20, 50, 0.55);
+  border: 1px solid rgba(160,130,255,0.25);
+  margin-bottom: 12px;
+  height: 90px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  color: #ddd;
+  font-size: 13px;
+  text-shadow: 0 0 4px rgba(0,0,0,0.6);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.45);
+  transition: box-shadow .35s ease, border-color .35s ease;
+  width: 95%;
+  max-width: 1200px;
+}
+
+/* только фон */
+.link-card .cover {
+  position: absolute;
+  inset: 0;
+  background-size: 44% auto, 44% auto, cover;
+  background-position: 8px 84%, calc(100% - 8px) 12%, center;
+  background-repeat: no-repeat, no-repeat, no-repeat;
+  opacity: .18;
+  filter: saturate(1.1) brightness(1);
+  transform: scale(1);
+  transition: transform .6s ease, filter .6s ease, opacity .6s ease;
+  will-change: transform, filter;
+  z-index: 0;
+}
+
+/* эффект свечения по бокам */
+.link-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at right center, rgba(176,115,255,.18), transparent 70%);
+  opacity: .4;
+  transition: opacity .4s ease;
+  z-index: 1;
+}
+
+/* контент — фиксированный слой */
+.link-card .link-content {
+  position: relative;
+  z-index: 2;
+  padding: 6px 10px 10px 10px;
+}
+
+/* текст */
+.link-card h4 {
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+}
+.link-card .meta {
+  font-size: 12.5px;
+  color: rgba(255,255,255,.75);
+}
+
+/* бейджи */
+.link-card .badges {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.link-card .badge {
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.12);
+}
+
+/* === HOVER === */
+/* увеличиваем только фоновое изображение */
+.link-card:hover .cover {
+  transform: scale(1.08);
+  opacity: .28;
+  filter: saturate(1.3) brightness(1.1);
+}
+/* чуть усиливаем внутреннее свечение */
+.link-card:hover::after {
+  opacity: .6;
+}
+.link-card:hover {
+  box-shadow: 0 12px 36px rgba(0,0,0,.65);
+  border-color: rgba(176,115,255,.4);
+}
+
+/* типы туннелей (inner glow) */
+.link-card.gre  { box-shadow: inset 0 0 22px rgba(255,140,58,.22), 0 10px 30px rgba(0,0,0,.45); }
+.link-card.ipip { box-shadow: inset 0 0 22px rgba(180,180,195,.20), 0 10px 30px rgba(0,0,0,.45); }
+.link-card.isp  { 
+  box-shadow: inset 0 0 22px rgba(50,205,50,.20), 0 10px 30px rgba(0,0,0,.45); 
+  height: 115px;
+}
+.link-card.em   { 
+  box-shadow: inset 0 0 22px rgba(58,160,255,.20), 0 10px 30px rgba(0,0,0,.45); 
+  height: 115px;
+}
+
+/* контейнер — без горизонтального скролла */
+#linksList {
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-height: 280px;
+  padding-right: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 10px;
+}
+#linksList::-webkit-scrollbar {
+  width: 6px;
+}
+#linksList::-webkit-scrollbar-thumb {
+  background: rgba(160,130,255,.3);
+  border-radius: 6px;
+}
+
+/* VLAN edit (правый блок) — маленькие правки */
+.details .vlan-list .vlan-item .cap{
+  opacity: .75; font-size: 12px; margin-left: 6px;
+}
+
+/* Мелкая карточка-пустышка */
+.empty-note.small{
+  padding: 14px 12px;
+  background: rgba(255,255,255,.03);
+  border: 1px dashed rgba(255,255,255,.15);
+  border-radius: 12px;
+  font-size: 13px;
+  max-width: 1200px;
+  width: 95%
+}
+
+/* мини-скролл в правой панели при подсветке (glow ты уже используешь) */
+.right.glow{
+  box-shadow: 0 0 36px rgba(170,100,255,.25) inset, 0 0 26px rgba(170,100,255,.3);
+  transition: box-shadow .7s ease;
+}
+.link-card {
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.link-card:hover {
+  transform: scale(1.015);
+  box-shadow: 0 0 20px rgba(180,150,255,.25);
+}
+
+
+/* --- Ограничение: заблокированная кнопка "Создать офис" --- */
+.btn:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+  filter: grayscale(15%);
+  transition: 0.2s ease;
+}
+
+/* --- styled select in Link modal --- */
+#modalLink .select-wrap { position: relative; }
+#modalLink .select-wrap select,
+#modalLink .field input,
+#modalLink .field select {
+  width:100%;
+  height:44px;
+  padding:0 44px 0 14px;
+  border-radius:12px;
+  background:rgba(255,255,255,.06);
+  color:#fff;
+  border:1px solid var(--border);
+  outline:none;
+  -webkit-appearance:none; -moz-appearance:none; appearance:none;
+}
+
+
+#modalLink .select-wrap select:focus,
+#modalLink .field input:focus {
+  border-color:#a78bfa;
+  box-shadow:0 0 0 3px rgba(167,139,250,.25);
+}
+#modalLink .select-wrap::after{
+  content:"▾";
+  position:absolute; right:12px; top:50%; transform:translateY(-50%);
+  pointer-events:none; opacity:.7;
+}
+
+/* селекты в модалках привязки */
+#modalTunnelBind select,
+#modalISPBind select {
+  height: 44px;
+  padding: 0 44px 0 12px;
+  border-radius: 12px;
+  background: rgba(255,255,255,.06);
+  color: #fff;
+  border: 1px solid var(--border);
+  -webkit-appearance: none; -moz-appearance: none; appearance: none;
+}
+#modalTunnelBind select:focus,
+#modalISPBind select:focus,
+#modalISPBind input:focus {
+  border-color: #a78bfa;
+  box-shadow: 0 0 0 3px rgba(167,139,250,.25);
+}
+
+/* ISP rows (без выбора iface) */
+.isp-peer-row{
+  display:grid;
+  grid-template-columns: 2fr 2fr 2fr 44px; /* office | cidr | policy | × */
+  gap:10px; align-items:center; margin-bottom:8px;
+}
+
+.isp-peer-row .del{
+  height:44px; border-radius:10px;
+  background:transparent; color:#ffc4c7; border:1px solid #ff8e8e; cursor:pointer;
+}
+
+/* Контейнер модалки ISP */
+#modalISPBind .modal__dialog{
+  background: linear-gradient(180deg, rgba(20,16,40,.95), rgba(12,10,26,.96));
+  border: 1px solid rgba(176,115,255,.25);
+  box-shadow: 0 30px 80px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.03);
+}
+
+#modalISPBind .modal__title{
+  font-size: 26px;
+  letter-spacing: .3px;
+  margin-bottom: 10px;
+  text-shadow: 0 0 14px rgba(176,115,255,.35);
+}
+
+#modalISPBind .form { padding-top: 4px; }
+
+#ispPeersList { margin-top: 10px; }
+
+/* Ряд офиса: [офис] [CIDR] [политика] [×] — у тебя уже есть .isp-peer-row, просто уточним */
+#modalISPBind .isp-peer-row{
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 12px;
+  padding: 10px;
+}
+
+#modalISPBind select,
+#modalISPBind input[type="text"]{
+  height: 44px;
+  padding: 0 44px 0 12px;
+  border-radius: 12px;
+  background: rgba(255,255,255,.06);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,.12);
+  -webkit-appearance:none; appearance:none;
+}
+
+#modalISPBind .isp-peer-row .del{
+  height: 44px; width: 44px;
+  border-radius: 10px;
+  border: 1px solid #ff8e8e;
+  background: transparent;
+  color: #ffc4c7;
+  cursor: pointer;
+}
+
+/* ===== Внешний терминал (ISP/EMach) ===== */
+.extterm{
+  position: fixed; inset: 0;
+  background: radial-gradient(ellipse at bottom, #050010 0%, #000006 100%);
+  z-index: 10000;
+  display: flex; align-items: center; justify-content: center;
+  transition: opacity .3s ease;
+}
+.extterm.hidden{ display:none; }
+
+.extterm__wrap{
+  width: min(1100px, 96vw);
+  height: min(720px, 88vh);
+  display:flex; flex-direction:column;
+  border:1px solid rgba(176,115,255,.25);
+  border-radius:16px;
+  background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+  box-shadow: 0 30px 80px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.03);
+}
+
+.extterm__top{
+  display:flex; align-items:center; gap:10px;
+  padding:12px 14px; border-bottom:1px solid rgba(255,255,255,.08);
+  background: linear-gradient(180deg, rgba(10,7,20,.7), rgba(10,7,20,.45));
+}
+.extterm__top h2{ margin:0; font-size:18px; letter-spacing:.2px; }
+.extterm__top .spacer{ flex:1; }
+
+.extterm__body{ flex:1; padding:12px; }
+
+/* — наследуем ваш терминальный стиль (как в office.css) — */
+.extterm .terminal{
+  position:relative; height:100%;
+  background: linear-gradient(180deg, #0e0d18, #0b0a15);
+  border:1px solid rgba(126,53,255,.25);
+  border-radius:16px;
+  box-shadow:0 10px 40px rgba(126,53,255,.15), inset 0 0 0 1px rgba(255,255,255,.03);
+  display:flex; flex-direction:column; overflow:hidden;
+}
+.extterm .term-header{
+  height:36px; display:flex; align-items:center; gap:8px;
+  padding:0 12px; border-bottom:1px solid rgba(255,255,255,.06);
+  background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.01));
+}
+.extterm .term-header .dot{ width:10px; height:10px; border-radius:50%; }
+.extterm .term-header .red{ background:#ff5f56; }
+.extterm .term-header .yellow{ background:#ffbd2e; }
+.extterm .term-header .green{ background:#27c93f; }
+.extterm .term-header .title{ margin-left:6px; color:#bfb7e6; font-size:13px; letter-spacing:.3px; }
+
+.extterm .term-body{
+  flex:1; overflow:auto; padding:16px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New";
+  font-size:14px; line-height:1.45; color:#d5f4d5;
+  background: repeating-linear-gradient(180deg, rgba(0,255,0,.02) 0 2px, transparent 2px 4px);
+}
+.extterm .line .ts{ color:#7ee787; }
+.extterm .line.err{ color:#ff8a80; }
+
+.extterm .term-input{
+  display:flex; align-items:center; gap:8px;
+  padding:10px 12px; border-top:1px solid rgba(255,255,255,.06);
+}
+.extterm .prompt{ color:#7ee787; font-family:monospace; }
+.extterm #extCmd{
+  flex:1; background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.1); color:#eaffea;
+  border-radius:8px; padding:10px 12px; outline:none; font-family:monospace; font-size:14px;
+}
+
+/* ===== Внешний терминал: лэйаут с левой панелью ===== */
+.extterm{ position: fixed; inset:0; background: radial-gradient(ellipse at bottom, #050010 0%, #000006 100%); z-index:10000; display:flex; align-items:center; justify-content:center; }
+.extterm.hidden{ display:none; }
+.extterm__wrap{ width:min(1180px,96vw); height:min(760px,90vh); display:flex; flex-direction:column; border:1px solid rgba(176,115,255,.25); border-radius:16px; background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02)); box-shadow:0 30px 80px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.03); }
+.extterm__top{ display:flex; align-items:center; gap:10px; padding:12px 14px; border-bottom:1px solid rgba(255,255,255,.08); background:linear-gradient(180deg, rgba(10,7,20,.7), rgba(10,7,20,.45)); }
+.extterm__top h2{ margin:0; font-size:18px; }
+.extterm__content{ flex:1; display:grid; grid-template-columns: 340px 1fr; gap:12px; padding:12px; }
+
+.extterm__pane{ display:flex; flex-direction:column; gap:12px; width: 360px;}
+.extterm__image{ height:220px; border-radius:14px; border:1px solid rgba(255,255,255,.10); background:#16122a center/contain no-repeat; box-shadow: inset 0 0 0 1px rgba(255,255,255,.04), 0 10px 30px rgba(0,0,0,.4); }
+.extterm__box{ 
+  border:1px solid rgba(255,255,255,.10); 
+  border-radius:14px; 
+  padding:10px; 
+  background:rgba(255,255,255,.03); 
+  min-height: 200px;
+  }
+.extterm__box h4{ margin:0 0 8px; font-size:13.5px; letter-spacing:.3px; text-transform:uppercase; color:#d6cdff; }
+.extterm__conns{ display:flex; flex-direction:column; gap:8px; max-height:calc(100% - 30px); overflow:auto; }
+.extconn{ border:1px solid rgba(255,255,255,.08); border-radius:12px; padding:8px 10px; background:rgba(255,255,255,.02); }
+.extconn__title{ font-weight:800; }
+.extconn__meta{ font-size:12.5px; color:rgba(230,230,255,.8); }
+
+.extterm__body{ min-width:0; }
+.extterm .terminal{ position:relative; height:100%; background: linear-gradient(180deg, #0e0d18, #0b0a15); border:1px solid rgba(126,53,255,.25); border-radius:16px; box-shadow:0 10px 40px rgba(126,53,255,.15), inset 0 0 0 1px rgba(255,255,255,.03); display:flex; flex-direction:column; overflow:hidden; }
+.extterm .term-header{ height:36px; display:flex; align-items:center; gap:8px; padding:0 12px; border-bottom:1px solid rgba(255,255,255,.06); background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.01)); }
+.extterm .term-header .dot{ width:10px; height:10px; border-radius:50%; }
+.extterm .term-header .red{ background:#ff5f56; } .extterm .term-header .yellow{ background:#ffbd2e; } .extterm .term-header .green{ background:#27c93f; }
+.extterm .term-body{ flex:1; overflow:auto; padding:16px; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New"; font-size:14px; line-height:1.45; color:#d5f4d5; background: repeating-linear-gradient(180deg, rgba(0,255,0,.02) 0 2px, transparent 2px 4px); }
+.extterm .line .ts{ color:#7ee787; }
+.extterm .line.err{ color:#ff8a80; }
+.extterm .term-input{ display:flex; align-items:center; gap:8px; padding:10px 12px; border-top:1px solid rgba(255,255,255,.06); }
+.extterm .prompt{ color:#7ee787; font-family:monospace; }
+.extterm #extCmd{ flex:1; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.1); color:#eaffea; border-radius:8px; padding:10px 12px; outline:none; font-family:monospace; font-size:14px; }
+
+/* === ISP терминал фон === */
+#ispStars {
+  background: radial-gradient(ellipse at center, rgba(10,0,25,0.3), rgba(0,0,0,0.9));
+  mix-blend-mode: lighten;
+}
+.extterm .term-body {
+  position: relative;
+  z-index: 1;
+}
+/* куда-нибудь в твой CSS */
+#extTerm .term-body { position: relative; }
+
+/* фон созвездий внутри внешнего терминала */
+#extTerm .term-body{ position:relative; background:transparent; }
+#extTerm .term-body > canvas.cosmic-bg{
+  position:absolute; inset:0; z-index:1; pointer-events:none;
+}
+/* контент поверх канваса */
+#extTerm .term-body .line,
+#extTerm .term-input,
+#extTerm .term-header { position:relative; z-index:2; }
+
+/* Виньетка по краям терминала (и ISP, и EMach) */
+#extTermBox .term-body,
+.office .term-body {            /* второй селектор — если хочешь и для офисного терминала */
+  position: relative;
+  border-radius: 14px;
+  overflow: hidden;             /* важно: чтобы виньетка повторяла скругление */
+}
+
+/* текст/строки выше оверлея */
+#extTermBox .term-body > *,
+.office .term-body > * {
+  position: relative;
+  z-index: 2;
+}
+
+/* сам «вингет»-слой */
+#extTermBox .term-body::before,
+.office .term-body::before {
+  content: "";
+  position: absolute;
+  inset: -1px;                  /* на 1px шире, чтобы стык с границей не светился */
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+
+  /* комбинация мягкой виньетки + лёгкое фиолетовое свечение сверху/снизу */
+  background: radial-gradient(140% 120% at 50% -10%,
+      rgba(176,115,255,0.10), transparent 60%),
+    radial-gradient(140% 120% at 50% 110%,
+      rgba(176,115,255,0.10), transparent 60%),
+    linear-gradient(180deg, rgba(0,0,0,0.25), rgba(0,0,0,0.10));
+
+  /* тёмная внутренняя тень по краям */
+  box-shadow: inset 0 0 70px rgba(0,0,0,0.55),
+    inset 0 0 140px rgba(0,0,0,0.45);
+}
+
+/* опционально — лёгкие «сканлайны», очень тонкие */
+#extTermBox .term-body::after,
+.office .term-body::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: .08;
+  background: repeating-linear-gradient(
+      to bottom,
+      rgba(255,255,255,0.12) 0px,
+      rgba(255,255,255,0.12) 1px,
+      transparent 2px,
+      transparent 4px
+    );
+}
+
+/* Общий тёмный стиль для всех селектов в Lounge */
+.modal select,
+.modal select option {
+  background-color: #180a2a;   /* тёмный фон */
+  color: #f4eaff;              /* светлый текст */
+  border: 1px solid #3a215f;
+  font-size: 14px;
+}
+
+/* Чтоб в обычных формах (не только в модалках) тоже было ок */
+select,
+select option {
+  background-color: #180a2a;
+  color: #f4eaff;
+}
+
+/* Немного скруглим сам селект, чтобы он попадал в общий стиль */
+select {
+  border-radius: 10px;
+  padding: 6px 10px;
+  outline: none;
+}
+
+/* На фокус — подсветка рамки */
+select:focus {
+  border-color: #9b6bff;
+  box-shadow: 0 0 0 1px rgba(155,107,255,0.6);
+}
+
+.isp-peer-row {
+  display: grid;
+  grid-template-columns: minmax(140px, 1.2fr)  /* офис */
+    120px                 /* ВМ (узкий) */
+    minmax(190px, 2fr)    /* CIDR */
+    minmax(140px, 1.2fr)  /* политика */
+    32px;                 /* крестик */
+  gap: 8px;
+  align-items: center;
+}
+
+/* конкретно селект ВМ делаем поу already */
+.isp-peer-row select[data-k="vm"] {
+  max-width: 120px;
+  min-width: 100px;
+}
+/* Общий терминал (и офисный, и внешний) */
+.terminal {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: 100%;
+  width: 100%;
+}
+
+/* Область логов */
+.terminal .term-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 8px; /* чтобы текст не прилипал к скроллу */
+}
+
+/* Строки в логе (чисто на всякий случай) */
+.terminal .term-body .line {
+  white-space: pre-wrap;
+}
+
+/* Стилизованный скроллбар под темный UI */
+.terminal .term-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.terminal .term-body::-webkit-scrollbar-track {
+  background: rgba(10, 10, 20, 0.8);
+  border-radius: 999px;
+}
+
+.terminal .term-body::-webkit-scrollbar-thumb {
+  background: rgba(160, 120, 255, 0.7);
+  border-radius: 999px;
+}
+
+.terminal .term-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(190, 150, 255, 0.9);
+}
+
+/* Firefox */
+.terminal .term-body {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(160,120,255,0.7) rgba(10,10,20,0.8);
+}
+.extterm__body {
+  display: flex;
+  height: 100%;
+  min-height: 0;
+}
+/* === ВНЕШНИЙ ТЕРМИНАЛ ISP / EMach === */
+
+.extterm {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+}
+
+.extterm.hidden {
+  display: none;
+}
+
+.extterm__wrap {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1200px;
+  height: 100%;
+}
+
+/* область под терминал + левую панель */
+.extterm__content {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;          /* 🔑 разрешаем ужиматься по высоте */
+}
+
+/* правая колонка с терминалом */
+.extterm__body {
+  flex: 1 1 auto;
+  min-height: 0;          /* 🔑 иначе терминал будет распирать родителя */
+  display: flex;
+}
+
+/* сам терминал внутри */
+#extTermBox {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;          /* 🔑 чтобы term-body мог скроллиться */
+}
+
+/* область логов */
+#extTermBox .term-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;       /* 🔑 вместо роста вниз — скролл */
+  padding-right: 8px;
+}
+
+/* строка ввода внизу, фиксированной высоты */
+#extTermBox .term-input {
+  flex: 0 0 auto;
+}
+
+/* стилизованный скроллбар, как в офисном терминале */
+#extTermBox .term-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+#extTermBox .term-body::-webkit-scrollbar-track {
+  background: rgba(10, 10, 20, 0.8);
+  border-radius: 999px;
+}
+
+#extTermBox .term-body::-webkit-scrollbar-thumb {
+  background: rgba(160, 120, 255, 0.7);
+  border-radius: 999px;
+}
+
+#extTermBox .term-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(190, 150, 255, 0.9);
+}
+
+/* Firefox */
+#extTermBox .term-body {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(160,120,255,0.7) rgba(10,10,20,0.8);
+}
+/* ===== EMach bind modal layout ===== */
+
+.em-bind-grid {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.em-bind-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(20, 16, 40, 0.9);
+  box-shadow: 0 0 0 1px rgba(140, 120, 255, 0.15);
+}
+
+/* тумблеры */
+.em-switch {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #dcd5ff;
+}
+
+.em-switch input {
+  display: none;
+}
+
+.em-switch .track {
+  position: relative;
+  width: 44px;
+  height: 22px;
+  border-radius: 999px;
+  background: rgba(90, 70, 150, 0.4);
+  box-shadow: inset 0 0 0 1px rgba(180, 160, 255, 0.5);
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.em-switch .thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: #f4f1ff;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+  transition: transform 0.18s ease;
+}
+
+/* включённое состояние */
+.em-switch input:checked + .track {
+  background: linear-gradient(135deg, #b388ff, #7c3aed);
+}
+
+.em-switch input:checked + .track .thumb {
+  transform: translateX(22px);
+}
+
+.em-switch .label {
+  user-select: none;
+}
+
+/* блоки справа */
+.em-bind-main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.em-block {
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(11, 8, 24, 0.95);
+  box-shadow: 0 0 0 1px rgba(120, 105, 200, 0.4);
+}
+
+.em-block h4 {
+  margin: 0 0 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #f4f1ff;
+}
+
+/* строки подключений к офисам */
+#emOfficeList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.em-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.2fr) minmax(0, 1.3fr) 150px 32px;
+  gap: 6px;
+  align-items: center;
+}
+
+.em-row select,
+.em-row input {
+  width: 100%;
+}
+
+/* небольшой твик для кнопки удаления */
+.em-row .del {
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+}
+
+/* ISP блок в этой же модалке можно слегка ужать */
+#emIspBlock .em-peer-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.4fr) 160px;
+  gap: 6px;
+}
+
+/* Модалка туннеля — шире и выше */
+.modal__dialog.wide.tunnel-modal {
+  max-width: 1040px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Контейнер внутри */
+.tunnel-modal .tunnel-layout {
+  display: grid;
+  grid-template-columns: 300px minmax(0, 1fr);
+  gap: 16px;
+  margin-top: 12px;
+  min-height: 360px;
+}
+
+/* Левая колонка (список узлов) */
+.tunnel-sources {
+  background: rgba(12, 8, 24, 0.95);
+  border-radius: 14px;
+  padding: 10px 12px;
+  border: 1px solid rgba(214, 205, 255, 0.2);
+}
+
+.tunnel-sources-list {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 420px;
+  overflow-y: auto;
+}
+
+/* Узел: офис / ISP / EMach */
+.tunnel-node {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: 9px;
+  border: 1px dashed rgba(214, 205, 255, 0.35);
+  background: radial-gradient(circle at 0 0, rgba(143,124,255,0.16), transparent 60%),
+              rgba(29, 20, 58, 0.9);
+  cursor: grab;
+  font-size: 13px;
+  user-select: none;
+  transition: border-color .15s ease, background .15s ease, transform .1s ease;
+}
+
+.tunnel-node:hover {
+  border-style: solid;
+  border-color: rgba(214, 205, 255, 0.8);
+  background: radial-gradient(circle at 50% 0, rgba(143,124,255,0.22), transparent 65%),
+              rgba(40, 26, 82, 0.95);
+}
+
+.tunnel-node.dragging {
+  opacity: .6;
+  transform: scale(.98);
+}
+
+.tunnel-node-title {
+  font-weight: 500;
+}
+
+.tunnel-node-sub {
+  font-size: 11px;
+  opacity: .7;
+}
+
+/* Иконка узла слева (office/ISP/EMach) */
+.tunnel-node-icon {
+  flex: 0 0 22px;
+  height: 22px;
+  border-radius: 999px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  box-shadow: 0 0 0 1px rgba(214, 205, 255, 0.3);
+}
+
+/* Примеры картинок — подгони пути под свои реальные */
+.tunnel-node-icon.office {
+  background-image: url('../custom/img/office_1.png');
+}
+
+.tunnel-node-icon.isp {
+  background-image: url('../custom/img/isp.png');
+}
+
+.tunnel-node-icon.emach {
+  background-image: url('../custom/img/Emach.png');
+}
+
+/* Правая колонка */
+.tunnel-targets {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tunnel-slots-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: 10px;
+  align-items: stretch;
+}
+
+/* Слот A/B */
+.tunnel-slot {
+  position: relative;
+  border-radius: 14px;
+  border: 1px dashed rgba(214, 205, 255, 0.45);
+  padding: 8px 10px;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: radial-gradient(circle at 0 0, rgba(143,124,255,0.12), transparent 60%),
+              rgba(12, 8, 24, 0.96);
+  overflow: hidden;
+}
+
+.tunnel-slot.with-bg {
+  background-size: cover;
+  background-position: center;
+}
+
+/* лёгкая тёмная вуаль над фоном офиса */
+.tunnel-slot.with-bg::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(6,4,16,0.7), rgba(6,4,16,0.9));
+  pointer-events: none;
+}
+
+.tunnel-slot-content {
+  position: relative;
+  z-index: 1;
+}
+
+/* состояние "перетаскиваем сюда" */
+.tunnel-slot.drag-over {
+  border-style: solid;
+  border-color: rgba(214, 205, 255, 0.9);
+  box-shadow: 0 0 0 1px rgba(214, 205, 255, 0.75),
+              0 0 24px rgba(143, 124, 255, 0.45);
+}
+
+/* шапка слота */
+.slot-label {
+  font-size: 12px;
+  opacity: 0.75;
+  margin-bottom: 4px;
+}
+
+/* плейсхолдер */
+.slot-placeholder {
+  font-size: 12px;
+  opacity: 0.55;
+  margin-top: 18px;
+}
+
+/* заголовок выбранного endpoint */
+.tunnel-endpoint-title {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.tunnel-endpoint-kind {
+  font-size: 11px;
+  opacity: .7;
+}
+
+/* чипы ВМ внутри слота */
+.tunnel-vm-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.tunnel-vm-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 7px;
+  border-radius: 999px;
+  border: 1px solid rgba(214, 205, 255, 0.5);
+  font-size: 11px;
+  cursor: pointer;
+  background: rgba(34, 23, 70, 0.9);
+  backdrop-filter: blur(4px);
+  transition: background .15s ease, box-shadow .15s ease, transform .08s ease;
+}
+
+.tunnel-vm-pill:hover {
+  transform: translateY(-1px);
+  background: rgba(55, 37, 111, 0.95);
+}
+
+.tunnel-vm-pill.selected {
+  background: rgba(143, 124, 255, 0.35);
+  box-shadow: 0 0 0 1px rgba(143, 124, 255, 0.9);
+}
+
+/* иконки ВМ по типу (используем твои svg) */
+.vm-icon {
+  width: 14px;
+  height: 14px;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* подгони пути под то, куда положил svg-файлы */
+.vm-icon-router   { background-image: url('../img/router.svg'); }
+.vm-icon-switch   { background-image: url('../img/switch.svg'); }
+.vm-icon-server   { background-image: url('../img/server.svg'); }
+.vm-icon-firewall { background-image: url('../img/firewall.svg'); }
+.vm-icon-client   { background-image: url('../img/client.svg'); }
+.vm-icon-generic  { background-image: url('../img/server.svg'); }
+
+/* блок с CIDR */
+.tunnel-params {
+  margin-top: 4px;
+}
+
+#tunnelCIDR {
+  width: 100%;
+  border-radius: 9px;
+  border: 1px solid rgba(214, 205, 255, 0.35);
+  background: rgba(10, 6, 28, 0.95);
+  padding: 7px 9px;
+  font-size: 13px;
+  color: #F0E6FF;
+  outline: none;
+}
+
+#tunnelCIDR::placeholder {
+  color: rgba(214, 205, 255, 0.45);
+}
+
+#tunnelCIDR:focus {
+  border-color: rgba(143, 124, 255, 0.95);
+  box-shadow: 0 0 0 1px rgba(143, 124, 255, 0.9),
+              0 0 18px rgba(143, 124, 255, 0.35);
+}
+
+/* стрелка между слотами */
+.tunnel-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.tunnel-arrow-icon {
+  width: 42px;
+  height: 42px;
+  opacity: 0.95;
+}
+
+/* Сетка ВМ внутри слота */
+.tunnel-vm-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); /* было 140 */
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* Карточка одной ВМ — чуть компактнее */
+.tunnel-vm-card {
+  position: relative;
+  border-radius: 10px;
+  border: 1px solid rgba(214, 205, 255, 0.4);
+  padding: 8px 8px 7px;
+  min-height: 64px; /* было ~80 */
+  background: radial-gradient(circle at 0 0, rgba(143,124,255,0.16), transparent 65%),
+              rgba(18, 12, 46, 0.96);
+  cursor: pointer;
+  overflow: hidden;
+  text-align: left;
+  transition: background .15s ease,
+    box-shadow .15s ease,
+    transform .08s ease,
+    border-color .15s ease;
+}
+
+/* Фоновая SVG-иконка */
+.tunnel-vm-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-size: 60%;               /* чуть меньше */
+  background-repeat: no-repeat;
+  background-position: 50% 16%;
+  opacity: 0.20;
+  pointer-events: none;
+}
+
+.tunnel-vm-card-label {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.tunnel-vm-card-name {
+  font-size: 12px;   /* меньше */
+  font-weight: 600;
+}
+
+.tunnel-vm-card-kind {
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+/* hover / selected */
+.tunnel-vm-card:hover {
+  transform: translateY(-1px);
+  background: radial-gradient(circle at 0 0, rgba(143,124,255,0.22), transparent 70%),
+              rgba(24, 16, 60, 0.98);
+  box-shadow: 0 0 12px rgba(143,124,255,0.28);
+  border-color: rgba(214, 205, 255, 0.85);
+}
+
+.tunnel-vm-card.selected {
+  border-color: rgba(143,124,255,0.95);
+  box-shadow: 0 0 0 1px rgba(143,124,255,0.9),
+    0 0 16px rgba(143,124,255,0.3);
+}
+
+/* Привязка типов ВМ к svg-иконкам (пути подгони под себя) */
+.tunnel-vm-card.vm-bg-router::before   { background-image: url('../img/router.svg'); }
+.tunnel-vm-card.vm-bg-switch::before   { background-image: url('../img/switch.svg'); }
+.tunnel-vm-card.vm-bg-server::before   { background-image: url('../img/server.svg'); }
+.tunnel-vm-card.vm-bg-firewall::before { background-image: url('../img/firewall.svg'); }
+.tunnel-vm-card.vm-bg-client::before   { background-image: url('../img/client.svg'); }
+.tunnel-vm-card.vm-bg-generic::before  { background-image: url('../img/server.svg'); }
+
+
+/* Диалог туннеля: фиксированная высота, без роста страницы */
+.modal__dialog.tunnel-modal {
+  max-width: 1100px;
+  width: 100%;
+  max-height: 80vh;        /* не выше 80% окна */
+  display: flex;
+  flex-direction: column;
+  padding: 18px 20px 18px;
+  box-sizing: border-box;
+}
+
+/* Заголовок остаётся "прилипшим" сверху, остальное скроллится */
+.modal__dialog.tunnel-modal > .modal__title,
+.modal__dialog.tunnel-modal > .modal__close {
+  flex: 0 0 auto;
+}
+
+/* Внутренний контент — единственное, что скроллится */
+.tunnel-modal-body {
+  flex: 1 1 auto;
+  margin-top: 10px;
+  overflow-y: auto;
+  padding-right: 6px;   /* чуть места под скроллбар */
+}
+
+/* Чтобы вьюха не распирала модалку по высоте */
+.tunnel-layout {
+  display: grid;
+  grid-template-columns: minmax(260px, 1.1fr) minmax(320px, 1.4fr);
+  gap: 16px;
+  align-items: flex-start;
+}
+
+/* На маленькой ширине — в колонку, но высота всё ещё скроллится внутри .tunnel-modal-body */
+@media (max-width: 900px) {
+  .tunnel-layout {
+    grid-template-columns: 1fr;
+  }
+}
+.extconn--tunnel{
+  border-left: 2px solid rgba(140,110,255,0.8);
+  padding-left: 10px;
+  margin-top: 6px;
+  background: rgba(40,30,80,0.25);
+}
+/* Левая панель внешнего терминала */
+.extterm__pane{
+  display: flex;
+  flex-direction: column;
+  height: auto;           /* было: 100% или фикс */
+  overflow: visible;      /* не режем контент */
+}
+
+/* Блок "Связи" */
+.extterm__box{
+  flex: 0 0 auto;         /* не сжимать */
+  height: auto;
+  max-height: none;       /* снять лимит */
+  overflow: visible;      /* убрать внутренний скролл */
+}
+
+/* Контейнер списка связей */
+.extterm__conns,
+#extConns{
+  height: auto;
+  max-height: none;
+  overflow: visible;
+}
+.extterm__conns{ max-height: 220px; overflow-y:auto; }
+.extterm__content{
+  align-items: flex-start; /* чтобы левая колонка могла расти вниз */
+}
+
+.extterm__wrap{
+  overflow-y: auto;        /* общий скролл всего терминала при необходимости */
+}
+/* Убираем стрелки у number */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
+}
+.vlan-editor-modal {
+  width: 720px;
+  max-height: 520px;
+  display: flex;
+  flex-direction: column;
+}
+
+.vlan-editor-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  padding: 12px;
+  overflow-y: auto;
+  max-height: 360px;
+}
+
+.vlan-tile {
+  height: 160px;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.vlan-tile-add {
+  cursor: pointer;
+  font-size: 42px;
+  color: rgba(255,255,255,0.4);
+}
+
+.vlan-tile-add:hover {
+  background: rgba(255,255,255,0.08);
+}
+.vlan-card {
+  padding: 14px;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+}
+
+.vlan-card select,
+.vlan-card input {
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #fff;
+  padding: 0 10px;
+}
+
+.vlan-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.vlan-cube {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(255,255,255,0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.vlan-cube:hover {
+  background: rgba(255,255,255,0.22);
+}
+
+.vlan-vid-row {
+  display: flex;
+  gap: 8px;
+}
+
+.vlan-vid-row button {
+  white-space: nowrap;
+}
+.vlan-prio-modal { max-width: 980px; }
+
+.vlan-prio-layout{
+  display: grid;
+  grid-template-columns: 1fr 220px;
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.vlan-prio-list{
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 220px;
+}
+
+.vlan-prio-item{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.10);
+  cursor: grab;
+  user-select: none;
+}
+
+.vlan-prio-item.dragging{ opacity: .55; }
+.vlan-prio-item.dragover{ outline: 2px dashed rgba(190,160,255,0.65); outline-offset: 2px; }
+
+.vlan-prio-drag{
+  width: 26px;
+  height: 26px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.10);
+  display:flex; align-items:center; justify-content:center;
+  font-weight: 700;
+}
+
+.vlan-prio-icon{
+  width: 34px; height: 34px;
+  border-radius: 12px;
+  background-size: cover;
+  background-position: center;
+  box-shadow: 0 6px 18px rgba(0,0,0,.35);
+}
+
+.vlan-prio-meta{ display:flex; flex-direction:column; gap:2px; }
+.vlan-prio-name{ font-weight: 700; }
+.vlan-prio-sub{ opacity: .75; font-size: 12px; }
+
+.vlan-prio-hint{
+  position: relative;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.10);
+  padding: 14px 14px 14px 18px;
+  min-height: 220px;
+  overflow: hidden;
+}
+
+.vlan-prio-hint__bar{
+  position:absolute;
+  left: 10px; top: 14px; bottom: 14px;
+  width: 4px;
+  border-radius: 8px;
+  background: linear-gradient(180deg, rgba(190,160,255,.95), rgba(190,160,255,.10));
+}
+
+.vlan-prio-hint__text .t{ font-weight: 800; margin-bottom: 4px; }
+.vlan-prio-hint__text .s{ opacity:.78; font-size: 12px; line-height: 1.35; }
+.icon-picker{
+  display:grid;
+  grid-template-columns: 1fr 220px;
+  gap:16px;
+  margin-top:12px;
+}
+
+.icon-grid{
+  display:grid;
+  grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+  gap:12px;
+  max-height:360px;
+  overflow:auto;
+}
+
+.icon-item{
+  height:64px;
+  border-radius:14px;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.12);
+  background-size:contain;
+  background-repeat:no-repeat;
+  background-position:center;
+  cursor:pointer;
+}
+
+.icon-item.active{
+  outline:2px solid rgba(190,160,255,.9);
+}
+
+.icon-preview{
+  border-radius:16px;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.10);
+  padding:14px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+}
+
+.icon-preview__box{
+  width:96px;height:96px;
+  border-radius:18px;
+  background:rgba(255,255,255,.08);
+  background-size:contain;
+  background-repeat:no-repeat;
+  background-position:center;
+}
+.icon-preview__name{ opacity:.8; font-size:12px; }
+.vlan-editor-dialog {
+  max-width: 1100px;
+  height: 620px;
+  display: flex;
+  flex-direction: column;
+}
+
+.vlan-editor-layout {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 24px;
+  overflow: hidden;
+}
+.vlan-tile {
+  position: relative;
+}
+
+.vlan-tile-bg {
+  position: absolute;
+  inset: 0;
+
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 70%;
+
+  opacity: 0.12;
+  pointer-events: none;
+}
+/* =========================
+   VLAN — левый список (плитки)
+========================= */
+
+.vlan-editor-left {
+  overflow-y: auto;
+  max-height: 100%;
+  padding-right: 6px;
+}
+
+/* сам грид */
+.vlan-tile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2 в ряд */
+  gap: 12px;                              /* отступы */
+  padding: 6px;
+}
+
+/* карточка VLAN */
+.vlan-tile {
+  height: 120px;                          /* БЫЛО 160 */
+  border-radius: 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.10);
+  position: relative;
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform .2s ease, box-shadow .25s ease, border-color .25s ease;
+}
+
+.vlan-tile:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0,0,0,.45);
+}
+
+/* активная */
+.vlan-tile.active {
+  border-color: rgba(176,115,255,.65);
+  box-shadow: 0 0 22px rgba(176,115,255,.45);
+}
+
+/* фоновая иконка */
+.vlan-tile-bg {
+  position: absolute;
+  inset: 0;
+  background-size: 60%;
+  background-position: center;
+  background-repeat: no-repeat;
+  opacity: .14;
+  pointer-events: none;
+}
+
+/* текст */
+.vlan-tile-top {
+  position: relative;
+  z-index: 2;
+  padding: 10px;
+}
+
+.vlan-tile-name {
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.vlan-tile-vid {
+  font-size: 12px;
+  opacity: .75;
+}
+
+/* кнопка удаления */
+.vlan-tile-del {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 26px;
+  height: 26px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,120,120,.6);
+  background: rgba(0,0,0,.35);
+  color: #ff9c9c;
+  font-size: 16px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity .15s ease, background .15s ease;
+}
+
+.vlan-tile:hover .vlan-tile-del {
+  opacity: 1;
+}
+
+.vlan-tile-del:hover {
+  background: rgba(255,80,80,.2);
+}
+
+/* плюс-плитка */
+.vlan-tile.plus {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 34px;
+  color: rgba(255,255,255,.4);
+}
+/* ===== DRAG ===== */
+.vlan-tile.dragging {
+  opacity: .4;
+  transform: scale(.96);
+}
+
+.vlan-tile.drag-over {
+  outline: 2px dashed rgba(180,130,255,.6);
+  outline-offset: -6px;
+}
